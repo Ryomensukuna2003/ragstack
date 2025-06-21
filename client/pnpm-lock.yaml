@@ -38,6 +38,9 @@ importers:
       next:
         specifier: 15.3.4
         version: 15.3.4(@playwright/test@1.53.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      pnpm:
+        specifier: ^10.12.1
+        version: 10.12.1
       react:
         specifier: ^19.0.0
         version: 19.1.0
@@ -1849,6 +1852,11 @@ packages:
   playwright@1.53.1:
     resolution: {integrity: sha512-LJ13YLr/ocweuwxyGf1XNFWIU4M2zUSo149Qbp+A4cpwDjsxRPj7k6H25LBrEHiEwxvRbD8HdwvQmRMSvquhYw==}
     engines: {node: '>=18'}
+    hasBin: true
+
+  pnpm@10.12.1:
+    resolution: {integrity: sha512-8N2oWA8O6UgcXHmh2Se5Fk8sR46QmSrSaLuyRlpzaYQ5HWMz0sMnkTV4soBK8zR0ylVLopwEqLEwYKcXZ1rjrA==}
+    engines: {node: '>=18.12'}
     hasBin: true
 
   possible-typed-array-names@1.1.0:
@@ -4046,6 +4054,8 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
     optional: true
+
+  pnpm@10.12.1: {}
 
   possible-typed-array-names@1.1.0: {}
 

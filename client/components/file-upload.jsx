@@ -36,6 +36,8 @@ export default function FileUpload({ onFileUpload }) {
       "application/pdf",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "application/msword",
+      "text/plain",
+      "text/markdown",
     ];
 
     if (!allowedTypes.includes(file.type)) {

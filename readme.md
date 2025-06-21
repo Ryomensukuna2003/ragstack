@@ -1,14 +1,15 @@
 # Smart Document Search & Q&A (Local, Private, Modern AI Stack)
 
+> [!IMPORTANT]  
+> You will need a good GPU to run this project effectively. I was running it on Ryzen 7 CPU with integrated graphics, and it was very slow. I recommend using a GPU with at least 8GB of VRAM for optimal performance. 
 
-## Overview
 
 Smart Document Search & Q&A is a privacy-focused, local-first application that enables users to upload documents (PDF, DOCX, TXT), ask natural language questions about their content, and receive context-aware answers powered by the latest open-source Large Language Models (LLMs). All processing is performed locally, ensuring full data privacy and zero cloud dependency.
 
 This project blends modern full-stack web development with cutting-edge GenAI workflows:
 - **Frontend:** React, Tailwind CSS for a clean and intuitive user interface.
 - **Backend:** Node.js & Express for robust file handling and orchestration.
-- **AI Layer:** Integrates Ollama (running LLaMA3 or Mistral) for local LLMs, ChromaDB for high-speed vector search, and LangChain.js to orchestrate retrieval-augmented generation (RAG).
+- **AI Layer:** Integrates Ollama (running LLaMA3 or Mistral) for local LLMs, qdrant for high-speed vector search, and LangChain.js to orchestrate retrieval-augmented generation (RAG).
 
 ---
 
@@ -29,7 +30,7 @@ This project blends modern full-stack web development with cutting-edge GenAI wo
 [User]
    │
    ▼
-[React Frontend] ⇄ [Node.js API] ⇄ [Chroma DB (local)] ⇄ [LangChain.js + Ollama (Mistral/LLaMA3)]
+[React Frontend] ⇄ [Node.js API] ⇄ [qdrant (docker)] ⇄ [LangChain.js + Ollama (Mistral/LLaMA3)]
 ```
 
 - **Frontend:** Handles document upload, querying, answer display, and highlighting.
@@ -40,7 +41,7 @@ This project blends modern full-stack web development with cutting-edge GenAI wo
 
 ## Tech Stack
 
-<img src="https://skillicons.dev/icons?i=nextjs,react,nodejs,tailwind,express&theme=dark" alt="Tech Stack" />
+<img src="https://skillicons.dev/icons?i=nextjs,react,nodejs,tailwind,docker,express&theme=dark" alt="Tech Stack" />
 
 - **Frontend:** React, Tailwind CSS
 - **Backend:** Node.js, Express, multer
@@ -50,7 +51,37 @@ This project blends modern full-stack web development with cutting-edge GenAI wo
 - **Orchestration:** LangChain.js
 - **Highlighting:** mark.js
 
----
+## API Endpoints
+
+### Document Upload
+- **POST** `/api/upload`
+  - Upload and process documents
+  - Accepts: PDF, DOCX, TXT files
+  - Returns: Processing status and document ID
+
+### Question Answering
+- **POST** `/api/ask`
+  - Ask questions about uploaded documents
+  - Body: `{ question: string, docId: string }`
+  - Returns: AI-generated answer
+
+
+## Project Structure
+
+```
+RAG/
+├── client/                 # Next.js frontend application
+│   ├── app/               # App router pages and layouts
+│   ├── components/        # Reusable UI components
+│   └── package.json       # Frontend dependencies
+├── server/                # Express.js backend application
+│   ├── controllers/       # Request handlers
+│   ├── routes/           # API route definitions
+│   ├── services/         # Business logic and utilities
+│   ├── uploads/          # File upload directory
+│   └── package.json      # Backend dependencies
+└── README.md             # Project documentation
+```
 
 ## How It Works
 
@@ -75,3 +106,42 @@ This project blends modern full-stack web development with cutting-edge GenAI wo
 - Private research assistant for academics, lawyers, or analysts.
 - Self-hosted enterprise knowledge base with full data control.
 - Learning platform for exploring and experimenting with GenAI and retrieval-augmented architectures.
+
+## Installation
+### Prerequisites
+- Node.js (v18+)
+- Docker (for qdrant)
+- Ollama (for local LLMs)
+### Setup Steps
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Ryomensukuna2003/ragstack
+   cd ragstack
+   ```
+2. **Install dependencies:**
+   ```bash
+   cd server
+   npm install
+   cd ../client
+   npm install
+   ```
+3. **Start the backend server:**
+   ```bash
+   cd server
+   npm run dev
+   ```
+4. **Start the frontend application:**
+   ```bash
+   cd ../client
+   npm run dev
+   ```
+5. **Run qdrant in Docker:**
+   ```bash
+   docker run -d --name qdrant -p 6333:6333 qdrant/qdrant
+   ```
+6. **Start Ollama with Mistral or LLaMA3:**
+   ```bash
+   ollama pull mistral
+   ollama pull nomic-embed-text
+   ollama serve & # Ensure Ollama is running
+   ```
