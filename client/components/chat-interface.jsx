@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
 
 export default function ChatInterface({ uploadedFile, onStartOver }) {
   const [messages, setMessages] = useState([
@@ -110,7 +111,7 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
         </CardHeader>
       </Card>
 
-      <Card className="flex flex-col h-[600px]">
+      <Card className="flex flex-col h-screen max-h-[70vh]">
         <CardHeader className="pb-3 flex-shrink-0">
           <CardTitle className="text-lg">Chat with your document</CardTitle>
           <Separator />
@@ -149,9 +150,26 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
                           : "bg-muted"
                       }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap">
+                      <ReactMarkdown
+                        className="text-sm whitespace-pre-wrap prose prose-sm max-w-none"
+                        components={{
+                          p: ({ children }) => (
+                            <p className="mb-2">{children}</p>
+                          ),
+                          code: ({ children }) => (
+                            <code className="bg-gray-100 px-1 rounded">
+                              {children}
+                            </code>
+                          ),
+                          pre: ({ children }) => (
+                            <pre className="bg-gray-100 p-2 rounded overflow-x-auto">
+                              {children}
+                            </pre>
+                          ),
+                        }}
+                      >
                         {message.content}
-                      </p>
+                      </ReactMarkdown>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {formatTime(message.timestamp)}

@@ -20,16 +20,25 @@ export default function ConfirmationDialog({ open, onConfirm, onCancel, fileName
             <CheckCircle className="h-6 w-6 text-green-600" />
           </div>
           <DialogTitle>File Upload Successful</DialogTitle>
-          <DialogDescription className="space-y-2">
-            <div className="flex items-center justify-center space-x-2">
-              <FileText className="h-4 w-4" />
-              <span className="font-medium">{fileName}</span>
+          <DialogDescription asChild>
+            <div className="space-y-2">
+              <div className="flex items-center justify-center space-x-2">
+                <FileText className="h-4 w-4" />
+                <span className="font-medium">{fileName}</span>
+              </div>
+              <span>
+                Your file has been uploaded successfully. You can now start
+                asking questions about its content.
+              </span>
             </div>
-            <span>Your file has been uploaded successfully. You can now start asking questions about its content.</span>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex-col space-y-2 sm:flex-row sm:space-y-0">
-          <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            className="w-full sm:w-auto"
+          >
             Upload Different File
           </Button>
           <Button onClick={onConfirm} className="w-full sm:w-auto">
@@ -38,5 +47,5 @@ export default function ConfirmationDialog({ open, onConfirm, onCancel, fileName
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

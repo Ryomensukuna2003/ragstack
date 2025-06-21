@@ -10,6 +10,7 @@ import axios from "axios";
 export default function FileUpload({ onFileUpload }) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const handleDrag = useCallback((e) => {
     e.preventDefault();
@@ -36,8 +37,7 @@ export default function FileUpload({ onFileUpload }) {
       "application/pdf",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "application/msword",
-      "text/plain",
-      "text/markdown",
+      "application/text",
     ];
 
     if (!allowedTypes.includes(file.type)) {
@@ -66,6 +66,7 @@ export default function FileUpload({ onFileUpload }) {
 
   const handleUpload = () => {
     if (!selectedFile) return;
+    setUploading(true);
 
     const formData = new FormData();
     formData.append("file", selectedFile);
@@ -79,10 +80,12 @@ export default function FileUpload({ onFileUpload }) {
       .then(() => {
         toast.success("File uploaded successfully!");
         onFileUpload(selectedFile);
+        setUploading(false);
       })
       .catch((error) => {
         console.error("File upload failed:", error);
         toast.error("Failed to upload file. Please try again.");
+        setUploading(false);
       });
   };
 
@@ -152,9 +155,15 @@ export default function FileUpload({ onFileUpload }) {
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                <Button onClick={handleUpload} className="w-full">
-                  Upload File
-                </Button>
+                {uploading ? (
+                  <Button disabled className="w-full">
+                    {" Uploading... "}
+                  </Button>
+                ) : (
+                  <Button onClick={handleUpload} className="w-full">
+                    Upload File
+                  </Button>
+                )}
               </div>
             )}
           </div>
