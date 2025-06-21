@@ -1,28 +1,70 @@
-# RAG Document Processing Application
+# Smart Document Search & Q&A (Local, Private, Modern AI Stack)
 
-A full-stack Retrieval-Augmented Generation (RAG) application that enables users to upload documents and ask questions about their content using AI-powered document processing.
+> [!IMPORTANT]  
+> You will need a good GPU to run this project effectively. I was running it on Ryzen 7 CPU with integrated graphics, and it was very slow. I recommend using a GPU with at least 8GB of VRAM for optimal performance. 
 
-## Features
 
-- **Document Upload**: Support for PDF, DOCX, and TXT file formats
-- **Document Processing**: Automatic text extraction and parsing
-- **Question Answering**: Ask questions about uploaded documents
-- **Modern UI**: Clean, responsive interface built with Next.js
-- **Real-time Processing**: Live feedback during document upload and processing
+Smart Document Search & Q&A is a privacy-focused, local-first application that enables users to upload documents (PDF, DOCX, TXT), ask natural language questions about their content, and receive context-aware answers powered by the latest open-source Large Language Models (LLMs). All processing is performed locally, ensuring full data privacy and zero cloud dependency.
+
+This project blends modern full-stack web development with cutting-edge GenAI workflows:
+- **Frontend:** React, Tailwind CSS for a clean and intuitive user interface.
+- **Backend:** Node.js & Express for robust file handling and orchestration.
+- **AI Layer:** Integrates Ollama (running LLaMA3 or Mistral) for local LLMs, qdrant for high-speed vector search, and LangChain.js to orchestrate retrieval-augmented generation (RAG).
+
+---
+
+## Key Features
+
+- Upload documents in PDF, DOCX, or TXT formats.
+- Ask any question about your documents in plain English.
+- Get accurate, context-rich answers powered by local LLMs—no data ever leaves your machine.
+- Highlights and references the exact place in your documents where answers were found.
+- Q&A history for easy reference.
+- Built with a modern, responsive UI and a developer-friendly, extensible codebase.
+
+---
+
+## Architecture
+
+```
+[User]
+   │
+   ▼
+[React Frontend] ⇄ [Node.js API] ⇄ [qdrant (docker)] ⇄ [LangChain.js + Ollama (Mistral/LLaMA3)]
+```
+
+- **Frontend:** Handles document upload, querying, answer display, and highlighting.
+- **Backend:** Manages uploads, parses documents, generates embeddings, stores and queries Chroma vectors, and orchestrates the LLM pipeline.
+- **AI Layer:** Uses local LLMs via Ollama, local embeddings with nomic-embed-text, and a LangChain.js RAG pipeline for efficient retrieval and answer generation.
+
+---
 
 ## Tech Stack
 
-### Frontend
-- **Next.js 15** - React framework with App Router
-- **Tailwind CSS** - Utility-first CSS framework
-- **Axios** - HTTP client for API requests
+<img src="https://skillicons.dev/icons?i=nextjs,react,nodejs,tailwind,docker,express&theme=dark" alt="Tech Stack" />
 
-### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web application framework
-- **Multer** - File upload middleware
-- **pdf-parse** - PDF text extraction
-- **mammoth** - DOCX text extraction
+- **Frontend:** React, Tailwind CSS
+- **Backend:** Node.js, Express, multer
+- **Document Parsing:** pdf-parse, mammoth
+- **Vector DB:** Chroma (local)
+- **Embeddings/LLM:** Ollama (Mistral, LLaMA3), nomic-embed-text
+- **Orchestration:** LangChain.js
+- **Highlighting:** mark.js
+
+## API Endpoints
+
+### Document Upload
+- **POST** `/api/upload`
+  - Upload and process documents
+  - Accepts: PDF, DOCX, TXT files
+  - Returns: Processing status and document ID
+
+### Question Answering
+- **POST** `/api/ask`
+  - Ask questions about uploaded documents
+  - Body: `{ question: string, docId: string }`
+  - Returns: AI-generated answer
+
 
 ## Project Structure
 
@@ -41,133 +83,65 @@ RAG/
 └── README.md             # Project documentation
 ```
 
-## Prerequisites
+## How It Works
 
-- Node.js (v18 or higher)
-- pnpm (recommended) or npm
+1. **Upload:** User uploads one or more documents. Backend extracts and chunks text for semantic search.
+2. **Indexing:** Each chunk is embedded using nomic-embed-text via Ollama and stored in Chroma DB with metadata.
+3. **Question Answering:** User asks a question. The system retrieves the most relevant document chunks and feeds them, along with the question, to the LLM using LangChain’s RAG pipeline.
+4. **Results:** The LLM generates a precise, context-aware answer and the UI highlights the original document locations.
+
+---
+
+## Why This Project Stands Out
+
+- **Full Privacy:** No cloud APIs. All data and AI computation remain on your hardware.
+- **Modern AI Workflows:** Demonstrates hands-on skill with LangChain, RAG, vector databases, and LLM orchestration.
+- **Full-Stack Excellence:** Built from the ground up using industry-standard front-end and back-end frameworks.
+- **Extensible:** Easily add features like multi-file search, summarization, tagging, or user authentication.
+
+---
+
+## Suggested Use Cases
+
+- Private research assistant for academics, lawyers, or analysts.
+- Self-hosted enterprise knowledge base with full data control.
+- Learning platform for exploring and experimenting with GenAI and retrieval-augmented architectures.
 
 ## Installation
-
-1. **Clone the repository**
+### Prerequisites
+- Node.js (v18+)
+- Docker (for qdrant)
+- Ollama (for local LLMs)
+### Setup Steps
+1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
-   cd RAG
+   git clone https://github.com/Ryomensukuna2003/ragstack
+   cd ragstack
    ```
-
-2. **Install backend dependencies**
+2. **Install dependencies:**
    ```bash
    cd server
-   pnpm install
+   npm install
+   cd ../client
+   npm install
    ```
-
-3. **Install frontend dependencies**
+3. **Start the backend server:**
+   ```bash
+   cd server
+   npm run dev
+   ```
+4. **Start the frontend application:**
    ```bash
    cd ../client
-   pnpm install
+   npm run dev
    ```
-
-## Running the Application
-
-### Development Mode
-
-1. **Start the backend server**
+5. **Run qdrant in Docker:**
    ```bash
-   cd server
-   pnpm dev
+   docker run -d --name qdrant -p 6333:6333 qdrant/qdrant
    ```
-   The server will run on `http://localhost:3001`
-
-2. **Start the frontend application**
+6. **Start Ollama with Mistral or LLaMA3:**
    ```bash
-   cd client
-   pnpm dev
+   ollama pull mistral
+   ollama pull nomic-embed-text
+   ollama serve & # Ensure Ollama is running
    ```
-   The client will run on `http://localhost:3000`
-
-### Production Mode
-
-1. **Build and start the backend**
-   ```bash
-   cd server
-   pnpm start
-   ```
-
-2. **Build and start the frontend**
-   ```bash
-   cd client
-   pnpm build
-   pnpm start
-   ```
-
-## API Endpoints
-
-### Document Upload
-- **POST** `/api/upload`
-  - Upload and process documents
-  - Accepts: PDF, DOCX, TXT files
-  - Returns: Processing status and document ID
-
-### Question Answering
-- **POST** `/api/ask`
-  - Ask questions about uploaded documents
-  - Body: `{ question: string, docId: string }`
-  - Returns: AI-generated answer
-
-## Usage
-
-1. **Upload a Document**
-   - Navigate to the application
-   - Click "Choose File" or drag and drop a document
-   - Supported formats: PDF, DOCX, TXT
-   - Wait for processing to complete
-
-2. **Ask Questions**
-   - Once processing is complete, enter your question
-   - Click "Ask" to get an AI-powered answer
-   - The system will analyze the document content to provide relevant responses
-
-## File Upload Limits
-
-- Maximum file size: 10MB
-- Supported formats: PDF, DOCX, TXT
-- Multiple files can be uploaded sequentially
-
-## Troubleshooting
-
-### Common Issues
-
-1. **404 Errors**
-   - Ensure backend server is running on port 3001
-   - Check API endpoint URLs in frontend code
-
-2. **File Upload Failures**
-   - Verify file format is supported
-   - Check file size limits
-   - Ensure uploads directory exists in server folder
-
-3. **PDF Processing Issues**
-   - Some PDFs may require additional processing time
-   - Ensure pdf-parse dependencies are properly installed
-
-### Development Tips
-
-- Use `nodemon` for automatic server restarts during development
-- Check browser console for frontend errors
-- Monitor server logs for backend issues
-- Ensure CORS is properly configured for cross-origin requests
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For issues and questions, please check the troubleshooting section or create an issue in the repository.
