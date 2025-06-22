@@ -1,41 +1,26 @@
-# Smart Document Search & Q&A (Local, Private, Modern AI Stack)
+# Why this project? and what dose these RAG and vector DB even mean? and what problem does it solve?
+-> Easy way to communicate with AI was to send data to AI with additional context and it will return the answer. But the thing with this approach is that it is not scalable and you have to send all the data to AI every time you want to ask a question. What if you have MBs of text data? It will take a lot of time. This is vector database and RAG (Retrieval-Augmented Generation) comes into play. 
 
-> [!IMPORTANT]  
-> You will need a good GPU to run this project effectively. I was running it on Ryzen 7 CPU with integrated graphics, and it was very slow. I recommend using a GPU with at least 8GB of VRAM for optimal performance. 
+### Vector DB
+-> Easy way to understand vector database is to consider a point int a 3D space. Each point has 3 coordinates (x, y, z) and it is unique. So if you have a lot of points like let's say all points in the Uttar-Pradesh and if i ask you what is the best place to visit in Gorakhpur? Now as you have all the points in the Uttar-Pradesh you only have to look at the points in Gorakhpur and find the one that is closest to the question. This is what vector database does. It stores the data in a way that it can be easily searched and retrieved.
 
+### RAG (Retrieval-Augmented Generation)
 
-Smart Document Search & Q&A is a privacy-focused, local-first application that enables users to upload documents (PDF, DOCX, TXT), ask natural language questions about their content, and receive context-aware answers powered by the latest open-source Large Language Models (LLMs). All processing is performed locally, ensuring full data privacy and zero cloud dependency.
+-> Remember finding the closest point in the Gorakhpur? This is what RAG does. It retrieves the relevant data from the vector database and sends it to AI for generating the answer. 
+
+# Smart Document Search & Q&A (Cloud-Powered AI Stack)
+
+Smart Document Search & Q&A is a full-stack web application that enables users to upload documents (PDF, DOCX, TXT), ask natural language questions about their content, and receive context-aware answers powered by Google's Gemini 2.5 Flash AI model. The application features cloud deployment for scalability and performance.
+1. **Upload:** User uploads documents through the Next.js frontend. Azure-hosted backend extracts and chunks text for semantic search
+2. **Indexing:** Each chunk is embedded and stored in Qdrant Cloud with metadata for fast retrieval
+3. **Question Answering:** User asks a question. The system retrieves the most relevant document chunks from Qdrant and feeds them to Google Gemini 2.5 Flash using LangChain's RAG pipeline
+4. **Results:** Gemini generates a precise, context-aware answer and the UI highlights the original document locations web application that enables users to upload documents (PDF, DOCX, TXT), ask natural language questions about their content, and receive context-aware answers powered by Google's Gemini 2.5 Flash AI model. The application features cloud deployment for scalability and performance.
 
 This project blends modern full-stack web development with cutting-edge GenAI workflows:
-- **Frontend:** React, Tailwind CSS for a clean and intuitive user interface.
-- **Backend:** Node.js & Express for robust file handling and orchestration.
-- **AI Layer:** Integrates Ollama (running LLaMA3 or Mistral) for local LLMs, qdrant for high-speed vector search, and LangChain.js to orchestrate retrieval-augmented generation (RAG).
-
----
-
-## Key Features
-
-- Upload documents in PDF, DOCX, or TXT formats.
-- Ask any question about your documents in plain English.
-- Get accurate, context-rich answers powered by local LLMs—no data ever leaves your machine.
-- Highlights and references the exact place in your documents where answers were found.
-- Q&A history for easy reference.
-- Built with a modern, responsive UI and a developer-friendly, extensible codebase.
-
----
-
-## Architecture
-
-```
-[User]
-   │
-   ▼
-[React Frontend] ⇄ [Node.js API] ⇄ [qdrant (docker)] ⇄ [LangChain.js + Ollama (Mistral/LLaMA3)]
-```
-
-- **Frontend:** Handles document upload, querying, answer display, and highlighting.
-- **Backend:** Manages uploads, parses documents, generates embeddings, stores and queries Chroma vectors, and orchestrates the LLM pipeline.
-- **AI Layer:** Uses local LLMs via Ollama, local embeddings with nomic-embed-text, and a LangChain.js RAG pipeline for efficient retrieval and answer generation.
+- **Frontend:** Next.js with React and Tailwind CSS for a clean and intuitive user interface
+- **Backend:** Node.js & Express deployed on Microsoft Azure for robust file handling and orchestration
+- **AI Layer:** Google Gemini 2.5 Flash for powerful language understanding, Qdrant Cloud for high-speed vector search, and LangChain.js to orchestrate retrieval-augmented generation (RAG)
+- **Infrastructure:** Azure deployment with ngrok for secure HTTPS connectivity
 
 ---
 
@@ -43,13 +28,36 @@ This project blends modern full-stack web development with cutting-edge GenAI wo
 
 <img src="https://skillicons.dev/icons?i=nextjs,react,nodejs,tailwind,docker,express&theme=dark" alt="Tech Stack" />
 
-- **Frontend:** React, Tailwind CSS
-- **Backend:** Node.js, Express, multer
+- **Frontend:** Next.js, React, Tailwind CSS
+- **Backend:** Node.js, Express (deployed on Azure)
 - **Document Parsing:** pdf-parse, mammoth
-- **Vector DB:** Chroma (local)
-- **Embeddings/LLM:** Ollama (Mistral, LLaMA3), nomic-embed-text
+- **Vector DB:** Qdrant Cloud
+- **AI Model:** Google Gemini 2.5 Flash
 - **Orchestration:** LangChain.js
+- **Infrastructure:** Microsoft Azure, ngrok
 - **Highlighting:** mark.js
+
+
+## Architecture
+
+```
+[User]
+   │
+   ▼
+[Next.js Frontend] ⇄ [Azure-hosted API] ⇄ [Qdrant Cloud] ⇄ [Google Gemini 2.5 Flash]
+                            │
+                            ▼
+                      [ngrok HTTPS Tunnel]
+```
+
+- **Frontend:** Handles document upload, querying, answer display, and highlighting
+- **Backend:** Azure-deployed Node.js API that manages uploads, parses documents, generates embeddings, and orchestrates the AI pipeline
+- **Vector Database:** Qdrant Cloud for scalable vector storage and similarity search
+- **AI Layer:** Google Gemini 2.5 Flash for advanced language understanding and generation
+- **Connectivity:** ngrok provides secure HTTPS tunneling for seamless API communication
+
+---
+
 
 ## API Endpoints
 
@@ -83,65 +91,68 @@ RAG/
 └── README.md             # Project documentation
 ```
 
-## How It Works
-
-1. **Upload:** User uploads one or more documents. Backend extracts and chunks text for semantic search.
-2. **Indexing:** Each chunk is embedded using nomic-embed-text via Ollama and stored in Chroma DB with metadata.
-3. **Question Answering:** User asks a question. The system retrieves the most relevant document chunks and feeds them, along with the question, to the LLM using LangChain’s RAG pipeline.
-4. **Results:** The LLM generates a precise, context-aware answer and the UI highlights the original document locations.
-
----
-
-## Why This Project Stands Out
-
-- **Full Privacy:** No cloud APIs. All data and AI computation remain on your hardware.
-- **Modern AI Workflows:** Demonstrates hands-on skill with LangChain, RAG, vector databases, and LLM orchestration.
-- **Full-Stack Excellence:** Built from the ground up using industry-standard front-end and back-end frameworks.
-- **Extensible:** Easily add features like multi-file search, summarization, tagging, or user authentication.
-
----
 
 ## Suggested Use Cases
 
-- Private research assistant for academics, lawyers, or analysts.
-- Self-hosted enterprise knowledge base with full data control.
-- Learning platform for exploring and experimenting with GenAI and retrieval-augmented architectures.
+- Enterprise knowledge base with cloud scalability and AI-powered search
+- Research assistant for academics, lawyers, or analysts with advanced language understanding
+- Document analysis platform with professional-grade AI capabilities
+- Learning platform for exploring modern GenAI and cloud deployment architectures
 
-## Installation
+## Installation & Setup
+
 ### Prerequisites
 - Node.js (v18+)
-- Docker (for qdrant)
-- Ollama (for local LLMs)
-### Setup Steps
+- Google Gemini API key
+- Qdrant Cloud account
+- Azure account (for backend deployment)
+- ngrok account (for HTTPS tunneling)
+
+### Local Development Setup
+
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/Ryomensukuna2003/ragstack
    cd ragstack
    ```
+
 2. **Install dependencies:**
    ```bash
+   # Backend dependencies
    cd server
    npm install
+   
+   # Frontend dependencies
    cd ../client
    npm install
    ```
-3. **Start the backend server:**
+
+3. **Environment Configuration:**
+   Create `.env` files in both server and client directories with your API keys:
    ```bash
-   cd server
+   # server/.env
+   GEMINI_API_KEY=your_gemini_api_key
+   QDRANT_URL=your_qdrant_cloud_url
+   QDRANT_API_KEY=your_qdrant_api_key
+   PORT=3001
+   
+   # client/.env.local
+   NEXT_PUBLIC_API_URL=your_ngrok_or_azure_backend_url
+   ```
+
+4. **Start the development servers:**
+   ```bash
+   # Start backend (in server directory)
+   npm start
+   
+   # Start frontend (in client directory, new terminal)
    npm run dev
    ```
-4. **Start the frontend application:**
-   ```bash
-   cd ../client
-   npm run dev
-   ```
-5. **Run qdrant in Docker:**
-   ```bash
-   docker run -d --name qdrant -p 6333:6333 qdrant/qdrant
-   ```
-6. **Start Ollama with Mistral or LLaMA3:**
-   ```bash
-   ollama pull mistral
-   ollama pull nomic-embed-text
-   ollama serve & # Ensure Ollama is running
-   ```
+
+### Production Deployment
+
+The application is currently deployed with:
+- **Backend:** Microsoft Azure VM
+- **Frontend:** Vercel
+- **Database:** Qdrant Cloud for vector storage
+- **HTTPS:** ngrok tunnel for secure API communication
