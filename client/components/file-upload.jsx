@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner"
 import axios from "axios";
+import SleepingCat from "./ui/neko";
 
 export default function FileUpload({
   onFileUpload,
@@ -198,12 +199,15 @@ export default function FileUpload({
                 intelligent responses.
               </p>
             </div>
+            <div className="flex items-center pl-4 pt-4">
+              <SleepingCat />
+            </div>
           </div>
         </div>
 
         {/* Right Side */}
         <Card className="rounded-none border-l border-border bg-card flex items-center justify-center">
-          <CardContent className="w-full max-w-md mx-auto p-8">
+          <CardContent className="w-full max-w-md mx-auto ">
             <div
               className={`flex flex-col justify-center items-center min-h-[400px] border-2 border-dashed rounded-lg p-8 transition-all duration-200 ${
                 dragActive
