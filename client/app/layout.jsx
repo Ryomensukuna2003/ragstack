@@ -1,6 +1,5 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono,IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-import { IBM_Plex_Mono } from "@next/font/google";
 
 const geistMono = Geist_Mono({
   // variable: "--font-geist-mono",
@@ -14,10 +13,7 @@ const geist = Geist({
   subsets: ["latin"],
   display: "swap",
 });
-const mono = IBM_Plex_Mono({
-  weight: "400",
-  subsets: ["latin"],
-});
+
 
 export const metadata = {
   title: "Smart Document Search",

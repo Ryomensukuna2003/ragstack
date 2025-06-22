@@ -10,7 +10,7 @@ import axios from "axios";
 
 export default function FileUpload({
   onFileUpload,
-  apiEndpoint = "http://localhost:3001/api/upload",
+  apiEndpoint = "http://20.244.83.191:3001/api/upload",
 }) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);

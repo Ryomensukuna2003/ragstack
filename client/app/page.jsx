@@ -27,7 +27,7 @@ export default function HomePage() {
   }
 
   const handleStartOver = async () => {
-    await axios.delete("http://localhost:3001/api/reset", {
+    await axios.delete("http://20.244.83.191:3001/api/reset", {
       data: { collectionName: "smart-docs" },
     });
     setCurrentStep("upload");

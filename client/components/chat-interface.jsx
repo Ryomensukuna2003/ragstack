@@ -51,7 +51,7 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
     setIsLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:3001/api/ask", {
+      const response = await axios.post("http://20.244.83.191:3001/api/ask", {
         question: inputMessage,
       });
 
