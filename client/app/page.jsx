@@ -27,7 +27,7 @@ export default function HomePage() {
   }
 
   const handleStartOver = async () => {
-    await axios.delete("http://20.244.83.191:3001/api/reset", {
+    await axios.delete("https://2659-20-244-83-191.ngrok-free.app/api/reset", {
       data: { collectionName: "smart-docs" },
     });
     setCurrentStep("upload");

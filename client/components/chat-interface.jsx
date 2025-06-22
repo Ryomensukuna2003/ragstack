@@ -51,9 +51,12 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
     setIsLoading(true);
 
     try {
-      const response = await axios.post("http://20.244.83.191:3001/api/ask", {
-        question: inputMessage,
-      });
+      const response = await axios.post(
+        "https://2659-20-244-83-191.ngrok-free.app/api/ask",
+        {
+          question: inputMessage,
+        }
+      );
 
       const botMessage = {
         id: Date.now() + 1,
