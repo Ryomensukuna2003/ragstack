@@ -89,34 +89,32 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-4xl">
-      <Card className="mb-6">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <FileText className="h-5 w-5 text-primary" />
-              <div>
-                <CardTitle className="text-lg">{uploadedFile?.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {(uploadedFile?.size / 1024 / 1024).toFixed(2)} MB • Ready for
-                  questions
-                </p>
+    <div className="w-full h-full max-w-full">
+      <Card className="flex flex-col w-full h-screen max-w-full border-0 rounded-none">
+        <Card className="rounded-none shadow-none">
+          <CardHeader className="">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <FileText className="h-5 w-5 text-primary" />
+                <div>
+                  <CardTitle className="text-lg">
+                    {uploadedFile?.name}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {(uploadedFile?.size / 1024 / 1024).toFixed(2)} MB • Ready
+                    for questions
+                  </p>
+                </div>
               </div>
+              <Button variant="outline" onClick={onStartOver} size="sm">
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Upload New File
+              </Button>
             </div>
-            <Button variant="outline" onClick={onStartOver} size="sm">
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Upload New File
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
+          </CardHeader>
+        </Card>
 
-      <Card className="flex flex-col h-screen max-h-[70vh]">
-        <CardHeader className="pb-3 flex-shrink-0">
-          <CardTitle className="text-lg">Chat with your document</CardTitle>
-          <Separator />
-        </CardHeader>
-
+        <Separator />
         <CardContent className="flex-1 flex flex-col p-0 min-h-0">
           <ScrollArea className="flex-1 min-h-0" ref={scrollAreaRef}>
             <div className="space-y-4 p-4">
@@ -151,10 +149,10 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
                       }`}
                     >
                       <ReactMarkdown
-                        className="text-sm whitespace-pre-wrap prose prose-sm max-w-none"
+                        className="text-sm  prose prose-sm max-w-none"
                         components={{
                           p: ({ children }) => (
-                            <p className="mb-2">{children}</p>
+                            <p className="mb-5">{children}</p>
                           ),
                           code: ({ children }) => (
                             <code className="bg-gray-100 px-1 rounded">
@@ -203,7 +201,7 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
             </div>
           </ScrollArea>
 
-          <div className="border-t p-4 flex-shrink-0">
+          <div className="border-t px-4 pt-4 flex-shrink-0">
             <div className="flex space-x-2">
               <Input
                 ref={inputRef}
@@ -223,7 +221,7 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
                 <Send className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="flex items-center justify-end text-xs text-muted-foreground mt-2">
               Press Enter to send, Shift + Enter for new line
             </p>
           </div>

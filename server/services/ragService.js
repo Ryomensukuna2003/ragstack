@@ -30,7 +30,12 @@ export const embedAndStoreChunks = async (rawText, docName) => {
     metadatas,
     embeddings,
     {
-      url: "http://localhost:6333",
+      url: process.env.QDRANT_URL || "http://localhost:6333",
+      apiKey: process.env.QDRANT_API_KEY || undefined,
+      https: {
+        rejectUnauthorized: false,
+      },
+      checkCompatibility: false,
       collectionName: "smart-docs",
     }
   );
@@ -42,7 +47,7 @@ export const getAnswerFromChunks = async (question) => {
   }
 
   const model = new ChatGoogleGenerativeAI({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.5-flash",
     apiKey: process.env.GOOGLE_API_KEY,
   });
 
