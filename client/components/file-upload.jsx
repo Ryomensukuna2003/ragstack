@@ -179,7 +179,7 @@ export default function FileUpload({
                 {"["}
               </span>
               <h1 className="text-2xl font-bold text-primary/100">
-                docuquest{" "}
+                vector-docs{" "}
               </h1>
               <span className="text-4xl text-primary/100 font-light">
                 {"]"}
