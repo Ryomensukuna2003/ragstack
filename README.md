@@ -1,12 +1,12 @@
 # Why this project? and what dose these RAG and vector DB even mean? and what problem does it solve?
--> Easy way to communicate with AI was to send data to AI with additional context and it will return the answer. But the thing with this approach is that it is not scalable and you have to send all the data to AI every time you want to ask a question. What if you have MBs of text data? It will take a lot of time. This is vector database and RAG (Retrieval-Augmented Generation) comes into play. 
+Easy way to communicate with AI was to send data to AI with additional context and it will return the answer. But the thing with this approach is that it is not scalable and you have to send all the data to AI every time you want to ask a question. What if you have MBs of text data? It will take a lot of time. This is vector database and RAG (Retrieval-Augmented Generation) comes into play. 
 
 ### Vector DB
--> Easy way to understand vector database is to consider a point int a 3D space. Each point has 3 coordinates (x, y, z) and it is unique. So if you have a lot of points like let's say all points in the Uttar-Pradesh and if i ask you what is the best place to visit in Gorakhpur? Now as you have all the points in the Uttar-Pradesh you only have to look at the points in Gorakhpur and find the one that is closest to the question. This is what vector database does. It stores the data in a way that it can be easily searched and retrieved.
+Easy way to understand vector database is to consider a point int a 3D space. Each point has 3 coordinates (x, y, z) and it is unique. So if you have a lot of points like let's say all points in the Uttar-Pradesh and if i ask you what is the best place to visit in Gorakhpur? Now as you have all the points in the Uttar-Pradesh you only have to look at the points in Gorakhpur and find the one that is closest to the question. This is what vector database does. It stores the data in a way that it can be easily searched and retrieved.
 
 ### RAG (Retrieval-Augmented Generation)
 
--> Remember finding the closest point in the Gorakhpur? This is what RAG does. It retrieves the relevant data from the vector database and sends it to AI for generating the answer. 
+Remember finding the closest point in the Gorakhpur? This is what RAG does. It retrieves the relevant data from the vector database and sends it to AI for generating the answer. 
 
 # Smart Document Search & Q&A (Cloud-Powered AI Stack)
 
