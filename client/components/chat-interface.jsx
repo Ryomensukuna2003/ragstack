@@ -10,6 +10,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
+import MarkdownFade from "@/components/ui/markdownFade";
+import { TextShimmer } from "@/components/ui/text-shimmer";
 
 export default function ChatInterface({ uploadedFile, onStartOver }) {
   const [messages, setMessages] = useState([
@@ -157,26 +159,8 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
                           : "bg-muted"
                       }`}
                     >
-                      <ReactMarkdown
-                        className="text-xs md:text-sm prose prose-sm max-w-none"
-                        components={{
-                          p: ({ children }) => (
-                            <p className="mb-2 md:mb-5">{children}</p>
-                          ),
-                          code: ({ children }) => (
-                            <code className="bg-gray-100 px-1 rounded text-xs md:text-sm">
-                              {children}
-                            </code>
-                          ),
-                          pre: ({ children }) => (
-                            <pre className="bg-gray-100 p-1.5 md:p-2 rounded overflow-x-auto text-xs md:text-sm">
-                              {children}
-                            </pre>
-                          ),
-                        }}
-                      >
-                        {message.content}
-                      </ReactMarkdown>
+                      <MarkdownFade content={message.content} />
+                      
                     </div>
                     <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                       {formatTime(message.timestamp)}
@@ -184,7 +168,6 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
                   </div>
                 </div>
               ))}
-
               {isLoading && (
                 <div className="flex items-start space-x-2 md:space-x-3 w-full">
                   <Avatar className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0">
@@ -194,15 +177,9 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
                   </Avatar>
                   <div className="bg-muted rounded-lg px-2 py-1.5 md:px-4 md:py-2">
                     <div className="flex space-x-1">
-                      <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                      <div
-                        className="w-1.5 h-1.5 md:w-2 md:h-2 bg-muted-foreground rounded-full animate-bounce"
-                        style={{ animationDelay: "0.1s" }}
-                      ></div>
-                      <div
-                        className="w-1.5 h-1.5 md:w-2 md:h-2 bg-muted-foreground rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
-                      ></div>
+                      <TextShimmer className="font-mono text-sm" duration={1}>
+                        Thinking...
+                      </TextShimmer>
                     </div>
                   </div>
                 </div>
