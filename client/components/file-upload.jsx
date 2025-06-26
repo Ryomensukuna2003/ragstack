@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner"
 import axios from "axios";
 import SleepingCat from "./ui/neko";
+import "../app/globals.css"; // Ensure global styles are imported
 
 export default function FileUpload({
   onFileUpload,
@@ -176,13 +177,13 @@ export default function FileUpload({
           {/* NavBar moved inside left side */}
           <nav className="h-20 bg-background border-border">
             <div className="flex items-center justify-end h-full">
-              <span className="text-4xl text-primary/100 font-light">
+              <span className="text-2xl md:text-4xl text-primary/100 font-light">
                 {"["}
               </span>
-              <h1 className="text-2xl font-bold text-primary/100">
+              <h1 className="text-xl md:text-2xl  font-bold text-primary/100">
                 vector-docs{" "}
               </h1>
-              <span className="text-4xl text-primary/100 font-light">
+              <span className="text-2xl md:text-4xl  text-primary/100 font-light">
                 {"]"}
               </span>
             </div>
@@ -190,14 +191,14 @@ export default function FileUpload({
 
           <div className="flex flex-col justify-center items-start flex-grow">
             <div className="max-w-lg">
-              <h1 className="text-4xl md:text-6xl text-primary font-bold mb-6 font-serif leading-tight">
+              <div className="text-3xl md:text-6xl text-primary font-bold mb-6 font-serif leading-tight">
                 Turn Documents Into Conversations
-              </h1>
-              <p className="text-muted-foreground text-lg leading-relaxed">
+              </div>
+              <div className="text-muted-foreground text-sm md:base leading-relaxed">
                 Upload a PDF, DOCX, DOC, or TXT file to start asking questions
                 about its content. Our AI will analyze your document and provide
                 intelligent responses.
-              </p>
+              </div>
             </div>
             <div className="flex items-center pl-4 pt-4">
               <SleepingCat />
@@ -223,10 +224,10 @@ export default function FileUpload({
                 <div className="text-center space-y-4">
                   <Upload className="mx-auto h-16 w-16 text-muted-foreground" />
                   <div className="space-y-2">
-                    <h3 className="text-xl font-semibold">
+                    <h3 className="text-base md:text-xl  font-semibold">
                       Drag and drop your file here
                     </h3>
-                    <p className="text-muted-foreground">
+                    <p className="text-base md:text-xl text-muted-foreground">
                       or click to browse files
                     </p>
                   </div>
@@ -241,7 +242,7 @@ export default function FileUpload({
                   />
 
                   <Button asChild variant="outline" size="lg">
-                    <label htmlFor="file-input" className="cursor-pointer">
+                    <label htmlFor="file-input" className="cursor-pointer ">
                       Choose File
                     </label>
                   </Button>

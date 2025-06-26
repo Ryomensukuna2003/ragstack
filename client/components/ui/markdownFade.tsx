@@ -18,7 +18,7 @@ export const MarkdownFade: React.FC<MarkdownFadeProps> = ({
   }, [content]);
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
       <motion.div
         key={key}
         initial={{ opacity: 0, y: -20 }}

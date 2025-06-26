@@ -52,11 +52,12 @@ export const getAnswerFromChunks = async (question) => {
   });
 
   const prompt = ChatPromptTemplate.fromTemplate(
-    `Use the following documents to answer the question:
-    
+    `Hey! I've gone through the following documents to help you out:
+
     {context}
-    
-    Question: {input}`
+
+    So, based on all that, heres my answer to your question:
+    {input}`
   );
 
   const combineDocsChain = await createStuffDocumentsChain({

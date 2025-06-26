@@ -9,7 +9,6 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import axios from "axios";
-import ReactMarkdown from "react-markdown";
 import MarkdownFade from "@/components/ui/markdownFade";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 
@@ -97,7 +96,7 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
     <div className="w-full h-full max-w-full">
       <Card className="flex flex-col w-full h-screen max-w-full border-0 rounded-none">
         <Card className="rounded-none shadow-none py-0">
-          <CardHeader className="px-3 md:p-6">
+          <CardHeader className="px-3 md:px-6">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center space-x-2 md:space-x-3 min-w-0 flex-1">
                 <FileText className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
@@ -160,7 +159,6 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
                       }`}
                     >
                       <MarkdownFade content={message.content} />
-                      
                     </div>
                     <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                       {formatTime(message.timestamp)}
