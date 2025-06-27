@@ -1,23 +1,26 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { Send, FileText, RotateCcw, User, Bot } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
+import { useState, useRef, useEffect } from "react";
+import { Send, FileText, RotateCcw, User, Bot } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import axios from "axios";
 import MarkdownFade from "@/components/ui/markdownFade";
 import { TextShimmer } from "@/components/ui/text-shimmer";
+
 
 export default function ChatInterface({ uploadedFile, onStartOver }) {
   const [messages, setMessages] = useState([
     {
       id: 1,
       type: "bot",
-      content: `Hi! I've analyzed your document "${uploadedFile?.name}". What would you like to know about it?`,
+      content: `Hi! I've analyzed your ${
+        uploadedFile?.name?.includes("YouTube") ? "YouTube video" : "document"
+      } "${uploadedFile?.name}". What would you like to know about it?`,
       timestamp: new Date(),
     },
   ]);
@@ -52,12 +55,9 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(
-        "https://2659-20-244-83-191.ngrok-free.app/api/ask",
-        {
-          question: inputMessage,
-        }
-      );
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/ask`, {
+        question: inputMessage,
+      });
 
       const botMessage = {
         id: Date.now() + 1,
@@ -105,8 +105,11 @@ export default function ChatInterface({ uploadedFile, onStartOver }) {
                     {uploadedFile?.name}
                   </CardTitle>
                   <p className="text-xs md:text-sm text-muted-foreground">
-                    {(uploadedFile?.size / 1024 / 1024).toFixed(2)} MB • Ready
-                    for questions
+                    {uploadedFile?.size &&
+                      uploadedFile?.size !== 0 &&
+                      (uploadedFile?.size / 1024 / 1024).toFixed(2) +
+                        " MB •"}{" "}
+                    Ready for questions
                   </p>
                 </div>
               </div>

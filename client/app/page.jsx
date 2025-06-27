@@ -10,6 +10,12 @@ export default function HomePage() {
   const [currentStep, setCurrentStep] = useState("upload") // 'upload', 'confirm', 'chat'
   const [uploadedFile, setUploadedFile] = useState(null)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [ytVideoDetails, setYtVideoDetails] = useState(null)
+
+  const handleYtVideoEmbedded = (videoDetails) => {
+    setYtVideoDetails(videoDetails)
+    setCurrentStep("chat")
+  }
 
   const handleFileUpload = (file) => {
     setUploadedFile(file)
@@ -27,19 +33,30 @@ export default function HomePage() {
   }
 
   const handleStartOver = async () => {
-    await axios.delete("https://2659-20-244-83-191.ngrok-free.app/api/reset", {
+    await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}/api/reset`, {
       data: { collectionName: "smart-docs" },
     });
     setCurrentStep("upload");
     setUploadedFile(null);
+    setYtVideoDetails(null);
     setShowConfirmDialog(false);
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {currentStep === "upload" && <FileUpload onFileUpload={handleFileUpload} />}
+      {currentStep === "upload" && (
+        <FileUpload 
+          onFileUpload={handleFileUpload} 
+          onYtVideoEmbedded={handleYtVideoEmbedded}
+        />
+      )}
 
-      {currentStep === "chat" && <ChatInterface uploadedFile={uploadedFile} onStartOver={handleStartOver} />}
+      {currentStep === "chat" && (
+        <ChatInterface 
+          uploadedFile={uploadedFile || { name: ytVideoDetails?.title || "YouTube Video" }} 
+          onStartOver={handleStartOver} 
+        />
+      )}
 
       <ConfirmationDialog
         open={showConfirmDialog}

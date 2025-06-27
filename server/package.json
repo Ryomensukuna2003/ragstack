@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@langchain/community": "^0.3.47",
     "@langchain/core": "^0.3.61",
     "@langchain/google-genai": "^0.2.13",
     "@langchain/qdrant": "^0.1.2",
@@ -23,7 +24,11 @@
     "mammoth": "^1.9.1",
     "multer": "^2.0.1",
     "nodemon": "^3.1.10",
-    "pdf-parse": "1.1.0"
+    "pdf-parse": "1.1.0",
+    "youtube-transcript": "^1.2.1",
+    "youtube-transcript-api": "^3.0.6",
+    "youtube-transcript-plus": "^1.0.4",
+    "youtubei.js": "^14.0.0"
   },
   "devDependencies": {
     "@types/pdf-parse": "^1.1.5"

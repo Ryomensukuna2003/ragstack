@@ -1,18 +1,28 @@
-"use client"
+"use client";
 
 import { useState, useCallback, useRef } from "react";
 import { Upload, FileText, X, CheckCircle, AlertCircle } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { toast } from "sonner"
+import { toast } from "sonner";
+import { Input } from "./ui/input";
 import axios from "axios";
 import SleepingCat from "./ui/neko";
-import "../app/globals.css"; // Ensure global styles are imported
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function FileUpload({
   onFileUpload,
-  apiEndpoint = "https://2659-20-244-83-191.ngrok-free.app/api/upload",
+  onYtVideoEmbedded,
+  apiEndpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/api/upload`,
 }) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -20,6 +30,89 @@ export default function FileUpload({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState(null); // 'success', 'error', null
   const fileInputRef = useRef(null);
+  const [YtLink, setYtLink] = useState("");
+  const [ytVideoDetails, setYtVideoDetails] = useState(null);
+  const [showYtPreview, setShowYtPreview] = useState(false);
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleYtLink();
+    }
+  };
+
+  const getYouTubeVideoDetails = async (videoId) => {
+    const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
+
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoId}&key=${apiKey}`;
+    const res = await axios.get(url);
+    const video = res.data.items[0];
+
+    if (!video) throw new Error("Video not found");
+    return {
+      title: video.snippet.title,
+      description: video.snippet.description,
+      channelTitle: video.snippet.channelTitle,
+      publishDate: video.snippet.publishedAt,
+      views: video.statistics.viewCount,
+      duration: video.contentDetails.duration,
+      thumbnail: video.snippet.thumbnails.high.url, // or medium/default/maxres
+    };
+  };
+
+  const handleYtLink = async () => {
+    console.log("Link is - " + YtLink);
+    // extract video ID from YouTube link
+    const videoId = YtLink.match(
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+    );
+    try {
+      if (!videoId) {
+        toast.error("Invalid YouTube link. Please provide a valid link.");
+        return;
+      }
+
+      const videoDetails = await getYouTubeVideoDetails(videoId);
+      console.log("Video Details:", videoDetails);
+      setYtVideoDetails(videoDetails);
+      setShowYtPreview(true);
+      toast.success(`Fetched details for: ${videoDetails.title}`);
+    } catch (error) {
+      toast.error(
+        error.message ||
+          "Failed to fetch YouTube video details. Please try again."
+      );
+      console.error("Error fetching YouTube video details:", error);
+    }
+  };
+
+  const startEmbeddingYtVideo = async () => {
+    try {
+      setUploading(true);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/yt-transcript`, {
+        URL: YtLink
+      });
+      console.log("Response of yt video:", response.data);
+      
+      // Close the preview dialog
+      setShowYtPreview(false);
+      
+      // Show success message
+      toast.success("YouTube video embedded successfully!");
+      
+      // Call the callback to switch to chat interface
+      if (onYtVideoEmbedded) {
+        onYtVideoEmbedded(ytVideoDetails);
+      }
+    } catch (error) {
+      console.error("Error embedding YouTube video:", error);
+      toast.error(
+        error.response?.data?.message || error.message || "Failed to embed YouTube video"
+      );
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleDrag = useCallback((e) => {
     e.preventDefault();
@@ -210,7 +303,7 @@ export default function FileUpload({
         <Card className="rounded-none border-l border-border bg-card flex items-center justify-center">
           <CardContent className="w-full max-w-md mx-auto ">
             <div
-              className={`flex flex-col justify-center items-center min-h-[400px] border-2 border-dashed rounded-lg p-8 transition-all duration-200 ${
+              className={`flex flex-col justify-center bg-muted items-center min-h-[400px] border-2 border-dashed rounded-lg p-8 transition-all duration-200 ${
                 dragActive
                   ? "border-primary/50 bg-primary/5"
                   : "border-border/60 hover:border-border"
@@ -221,7 +314,7 @@ export default function FileUpload({
               onDrop={handleDrop}
             >
               {!selectedFile ? (
-                <div className="text-center space-y-4">
+                <div className="text-center space-y-4 ">
                   <Upload className="mx-auto h-16 w-16 text-muted-foreground" />
                   <div className="space-y-2">
                     <h3 className="text-base md:text-xl  font-semibold">
@@ -324,6 +417,67 @@ export default function FileUpload({
                     )}
                   </div>
                 </div>
+              )}
+
+            </div>
+              <div className="flex justify-center align-middle text-foreground">OR</div>
+            <div className="">
+              <Input
+                placeholder="Enter YT link here"
+                value={YtLink}
+                onChange={(e) => setYtLink(e.target.value)}
+                onKeyDown={handleKeyPress}
+              />
+              <p className="text-xs flex w-full justify-end text-muted-foreground">
+                Press enter to fetch
+              </p>
+
+              {ytVideoDetails && (
+                <Dialog
+                  open={showYtPreview}
+                  onOpenChange={(e) => setShowYtPreview(false)}
+                >
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader className="text-center">
+                      <DialogTitle className="flex items-center justify-center">
+                        Is this the Video?
+                      </DialogTitle>
+                      <img
+                        src={ytVideoDetails?.thumbnail}
+                        alt="YT thumbnail"
+                        className="rounded-lg mb-4"
+                      />
+                      <DialogDescription asChild>
+                        <div className="space-y-2">
+                          <span className="flex items-center  space-x-2">
+                            {ytVideoDetails?.title}
+                          </span>
+                          <span className="flex items-center font-bold justify-end space-x-2">
+                            {ytVideoDetails?.channelTitle}
+                          </span>
+                          <span className="flex items-center justify-end space-x-2">
+                            Views : {ytVideoDetails?.views / 1000} K
+                          </span>
+                        </div>
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex-col space-y-2 sm:flex-row sm:space-y-0">
+                      <Button
+                        variant="outline"
+                        className="w-full sm:w-auto"
+                      >
+                        Enter diffrent Link
+                      </Button>
+                      <Button
+                        onClick={startEmbeddingYtVideo}
+                        disabled={uploading}
+                        className="w-full sm:w-auto"
+                      >
+                        {uploading ? "Embedding Video..." : "Start Chatting"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               )}
             </div>
           </CardContent>
