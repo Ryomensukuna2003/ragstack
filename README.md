@@ -8,7 +8,7 @@ Easy way to understand vector database is to consider a point int a 3D space. Ea
 
 Remember finding the closest point in the Gorakhpur? This is what RAG does. It retrieves the relevant data from the vector database and sends it to AI for generating the answer. 
 
-# Smart Document Search & Q&A (Cloud-Powered AI Stack)
+# Vector Docs
 
 Smart Document Search & Q&A is a full-stack web application that enables users to upload documents (PDF, DOCX, TXT), ask natural language questions about their content, and receive context-aware answers powered by Google's Gemini 2.5 Flash AI model. The application features cloud deployment for scalability and performance.
 1. **Upload:** User uploads documents through the Next.js frontend. Azure-hosted backend extracts and chunks text for semantic search
@@ -156,3 +156,8 @@ The application is currently deployed with:
 - **Frontend:** Vercel
 - **Database:** Qdrant Cloud for vector storage
 - **HTTPS:** ngrok tunnel for secure API communication
+
+
+## Todo
+- [ ] Add seperate vector name for embeddings. it is messing with current answers.
+- [ ] Add FireCrawlLoader to load data from websites.
