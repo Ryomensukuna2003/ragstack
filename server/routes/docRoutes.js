@@ -8,6 +8,6 @@ const upload = multer({ dest: 'uploads/' });
 router.post('/upload', upload.single('file'), uploadAndProcessDoc); // Upload Endpoint
 router.post('/ask', askQuestion);                                   // Ask Question Endpoint
 router.delete('/reset', resetEmbeddings);                           // Reset Embeddings Endpoint   
-router.post('/yt-transcript',extractTranscript)
+router.post('/yt-transcript',extractTranscript)                     // Extract Transcript from YouTube Endpoint
 
 export default router;

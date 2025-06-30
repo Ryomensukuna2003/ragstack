@@ -11,7 +11,7 @@ import "dotenv/config";
 
 let vectorStore;
 
-export const embedAndStoreChunks = async (rawText, docName) => {
+export const embedAndStoreChunks = async (rawText, docName, collName) => {
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 500,
     chunkOverlap: 50,
@@ -36,7 +36,7 @@ export const embedAndStoreChunks = async (rawText, docName) => {
         rejectUnauthorized: false,
       },
       checkCompatibility: false,
-      collectionName: "smart-docs",
+      collectionName: collName || "default_collection",
     }
   );
 };

@@ -56,7 +56,7 @@ export default function FileUpload({
       publishDate: video.snippet.publishedAt,
       views: video.statistics.viewCount,
       duration: video.contentDetails.duration,
-      thumbnail: video.snippet.thumbnails.high.url, // or medium/default/maxres
+      thumbnail: video.snippet.thumbnails.high.url,
     };
   };
 
@@ -73,7 +73,7 @@ export default function FileUpload({
       }
 
       const videoDetails = await getYouTubeVideoDetails(videoId);
-      console.log("Video Details:", videoDetails);
+      // console.log("Video Details:", videoDetails);
       setYtVideoDetails(videoDetails);
       setShowYtPreview(true);
       toast.success(`Fetched details for: ${videoDetails.title}`);
@@ -89,17 +89,21 @@ export default function FileUpload({
   const startEmbeddingYtVideo = async () => {
     try {
       setUploading(true);
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/yt-transcript`, {
-        URL: YtLink
-      });
-      console.log("Response of yt video:", response.data);
-      
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/yt-transcript`,
+        {
+          URL: YtLink,
+        }
+      );
+      localStorage.setItem(
+        "collectionName",
+        response.data.embeddingName || "default_collection"
+      );
+      // console.log("Response of yt video:", response.data);
       // Close the preview dialog
       setShowYtPreview(false);
-      
-      // Show success message
       toast.success("YouTube video embedded successfully!");
-      
+
       // Call the callback to switch to chat interface
       if (onYtVideoEmbedded) {
         onYtVideoEmbedded(ytVideoDetails);
@@ -107,7 +111,9 @@ export default function FileUpload({
     } catch (error) {
       console.error("Error embedding YouTube video:", error);
       toast.error(
-        error.response?.data?.message || error.message || "Failed to embed YouTube video"
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to embed YouTube video"
       );
     } finally {
       setUploading(false);
@@ -227,7 +233,14 @@ export default function FileUpload({
         },
         timeout: 30000, // 30 second timeout
       });
-
+      console.log("response of upload --> ", response);
+      if (response.status === 200) {
+        console.log("collectionName --> " + response.data.embeddingName);
+        localStorage.setItem(
+          "collectionName",
+          response.data.embeddingName || "default_collection"
+        );
+      }
       toast.success("File uploaded successfully!");
       setUploadStatus("success");
       onFileUpload?.(selectedFile, response.data);
