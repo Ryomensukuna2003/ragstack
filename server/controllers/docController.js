@@ -10,8 +10,10 @@ import { YoutubeLoader } from "@langchain/community/document_loaders/web/youtube
 // Controller to handle document upload and processing
 export const uploadAndProcessDoc = async (req, res) => {
   const text = await parseDoc(req.file);
-  await embedAndStoreChunks(text, req.file.originalname);
-  res.status(200).json({ status: "uploaded and embedded" });
+  let collectionName = req.file.originalname.replace(/\.[^/.]+$/, "") + Date.now();
+  console.log("collectionName --> " + collectionName);
+  await embedAndStoreChunks(text, req.file.originalname, collectionName);
+  res.status(200).json({ status: "uploaded and embedded", embeddingName: collectionName });
 };
 
 // Ask a question based on the uploaded document
@@ -59,8 +61,9 @@ export const extractTranscript = async (req, res) => {
       return res.status(404).json({ error: "No transcript found for the video" });
     }
     const rawText = docs?.map((doc) => doc.pageContent).join("\n");
-    const result = await embedAndStoreChunks(rawText, "youtube-transcript");
-    res.status(200).json({ status: "Transcript extracted and embedded", rawText });
+    let collectionName = "yt-transcript" + Date.now();
+    const result = await embedAndStoreChunks(rawText, "youtube-transcript", collectionName);
+    res.status(200).json({ status: "Transcript extracted and embedded", rawText, embeddingName: collectionName });
   } catch (error) {
     console.error("Failed to fetch transcript:", error.message);
     res.status(500).json({ error: "Failed to fetch transcript from YouTube", error: error.message });
