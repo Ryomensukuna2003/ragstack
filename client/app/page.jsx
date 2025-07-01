@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import FileUpload from "@/components/file-upload";
-import ChatInterface from "@/components/chat-interface";
 import ConfirmationDialog from "@/components/confirmation-dialog";
+import Chat from "@/components/chat-interface";
 import axios from "axios";
 
 export default function HomePage() {
@@ -54,7 +54,7 @@ export default function HomePage() {
       )}
 
       {currentStep === "chat" && (
-        <ChatInterface
+        <Chat
           uploadedFile={
             uploadedFile || { name: ytVideoDetails?.title || "YouTube Video" }
           }

@@ -2,13 +2,31 @@
 
 import { useState, useCallback, useRef } from "react";
 import { Upload, FileText, X, CheckCircle, AlertCircle } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import axios from "axios";
+import localFont from "next/font/local";
+import {  IBM_Plex_Mono } from "next/font/google";
+
+
+
+
+// Components
 import { toast } from "sonner";
 import { Input } from "./ui/input";
-import axios from "axios";
 import SleepingCat from "./ui/neko";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Card, CardContent } from "@/components/ui/card";
+import RotatingText from "@/components/ui/rotatingText";
+
+const monoskaFont = localFont({
+  src: "../app/fonts/Monoska.ttf",
+});
+
+const IBM = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-IBM",
+});
 
 import {
   Dialog,
@@ -276,10 +294,14 @@ export default function FileUpload({
   };
 
   return (
-    <div className="flex h-screen flex-col bg-background">
-      <div className="grid h-full grid-cols-1 md:grid-cols-2 bg-background">
-        {/* Left side */}
-        <div className="flex flex-col h-full w-full border-b border-border md:border-b-0 px-8 bg-background">
+    <div
+      className={`flex h-screen flex-col bg-background ${monoskaFont.className}`}
+    >
+      <div className="grid h-full grid-cols-1 md:grid-cols-5 bg-background">
+        {/* Left side - 60% */}
+        <div
+          className={`flex flex-col h-full w-full col-span-3 border-b border-border md:border-b-0 px-8 bg-background ${monoskaFont.className}`}
+        >
           {/* NavBar moved inside left side */}
           <nav className="h-20 bg-background border-border">
             <div className="flex items-center justify-end h-full">
@@ -297,8 +319,22 @@ export default function FileUpload({
 
           <div className="flex flex-col justify-center items-start flex-grow">
             <div className="max-w-lg">
-              <div className="text-3xl md:text-6xl text-primary font-bold mb-6 font-serif leading-tight">
-                Turn Documents Into Conversations
+              <div
+                className={`text-3xl md:text-6xl text-primary font-bold mb-6 font-serif leading-tight ${monoskaFont.className}`}
+              >
+                Turn Documents Into
+                <RotatingText
+                  texts={["Conversations", "Knowledge", "Insights", "Answers"]}
+                  mainClassName="px-2 sm:px-2 md:px-3 bg-primary text-background overflow-hidden py-0.5 sm:py-1 md:py-2  rounded-lg"
+                  staggerFrom={"last"}
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  exit={{ y: "-120%" }}
+                  staggerDuration={0.025}
+                  splitLevelClassName="overflow-hidden pb-0.5 sm:pb-1 md:pb-1"
+                  transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                  rotationInterval={2000}
+                />
               </div>
               <div className="text-muted-foreground text-sm md:base leading-relaxed">
                 Upload a PDF, DOCX, DOC, or TXT file to start asking questions
@@ -312,8 +348,8 @@ export default function FileUpload({
           </div>
         </div>
 
-        {/* Right Side */}
-        <Card className="rounded-none border-l border-border bg-card flex items-center justify-center">
+        {/* Right Side - 40% */}
+        <Card className="rounded-none border-l col-span-2 border-border bg-card flex items-center justify-center">
           <CardContent className="w-full max-w-md mx-auto ">
             <div
               className={`flex flex-col justify-center bg-muted items-center min-h-[400px] border-2 border-dashed rounded-lg p-8 transition-all duration-200 ${
@@ -431,10 +467,11 @@ export default function FileUpload({
                   </div>
                 </div>
               )}
-
             </div>
-              <div className="flex justify-center align-middle text-foreground">OR</div>
-            <div className="">
+            <div className="flex justify-center align-middle text-foreground">
+              OR
+            </div>
+            <div>
               <Input
                 placeholder="Enter YT link here"
                 value={YtLink}
@@ -450,9 +487,9 @@ export default function FileUpload({
                   open={showYtPreview}
                   onOpenChange={(e) => setShowYtPreview(false)}
                 >
-                  <DialogContent className="sm:max-w-md">
+                  <DialogContent className={`sm:max-w-md`}>
                     <DialogHeader className="text-center">
-                      <DialogTitle className="flex items-center justify-center">
+                      <DialogTitle className={`flex items-center justify-center`}>
                         Is this the Video?
                       </DialogTitle>
                       <img
@@ -478,6 +515,12 @@ export default function FileUpload({
                       <Button
                         variant="outline"
                         className="w-full sm:w-auto"
+                        onClick={() => {
+                          setShowYtPreview(false);
+                          setYtLink("");
+                          setYtVideoDetails(null);
+                        }}
+                        disabled={uploading}
                       >
                         Enter diffrent Link
                       </Button>

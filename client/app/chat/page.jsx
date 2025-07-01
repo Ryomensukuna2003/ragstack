@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TextShimmer } from "@/components/ui/text-shimmer";
-import { RotatingText } from "@/components/ui/rotatingText";
 
 const IBM = IBM_Plex_Mono({
   subsets: ["latin"],
@@ -23,7 +22,7 @@ const Chat = ({ uploadedFile, onStartOver }) => {
     {
       id: 1,
       type: "bot",
-      content: `Hi!\n\n I've analyzed your ${
+      content: `Hi! I've analyzed your ${
         uploadedFile?.name?.includes("YouTube") ? "YouTube video" : "document"
       } "${uploadedFile?.name}". What would you like to know about it?`,
       timestamp: new Date(),
@@ -128,8 +127,8 @@ const Chat = ({ uploadedFile, onStartOver }) => {
               <div
                 className={`max-w-[80%] rounded-lg px-4 py-2 ${
                   message.type === "user"
-                    ? "bg-primary text-primary-foreground ml-auto"
-                    : "bg-muted text-foreground"
+                    ? " text-primary ml-auto"
+                    : "text-foreground"
                 }`}
               >
                 <MarkdownTypewriter className="text-lg">
@@ -145,7 +144,7 @@ const Chat = ({ uploadedFile, onStartOver }) => {
             <div className="flex justify-start">
               <div className="bg-muted rounded-lg px-4 py-2">
                 <div className="flex items-center space-x-2">
-                  <TextShimmer className="font-mono text-sm" duration={1}>
+                  <TextShimmer className="font-mono text-lg" duration={1}>
                     Thinking...
                   </TextShimmer>
                 </div>
@@ -174,7 +173,7 @@ const Chat = ({ uploadedFile, onStartOver }) => {
               variant="ghost"
               className="ml-2 h-10 w-10 text-white hover:bg-white/10"
             >
-              <Send className="h-4 w-4" />
+              <Send />
             </Button>
           </div>
         </div>
