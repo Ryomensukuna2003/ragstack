@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TextShimmer } from "@/components/ui/text-shimmer";
-import { RotatingText } from "@/components/ui/rotatingText";
 
 const IBM = IBM_Plex_Mono({
   subsets: ["latin"],
@@ -23,7 +22,7 @@ const Chat = ({ uploadedFile, onStartOver }) => {
     {
       id: 1,
       type: "bot",
-      content: `Hi!\n\n I've analyzed your ${
+      content: `Hi! I've analyzed your ${
         uploadedFile?.name?.includes("YouTube") ? "YouTube video" : "document"
       } "${uploadedFile?.name}". What would you like to know about it?`,
       timestamp: new Date(),
