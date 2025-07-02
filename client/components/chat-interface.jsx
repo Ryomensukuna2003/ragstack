@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Send, Bot, X } from "lucide-react";
+import { Send, Bot, X,MoveRight } from "lucide-react";
 import { IBM_Plex_Mono } from "next/font/google";
 import { MarkdownTypewriter } from "react-markdown-typewriter";
 import axios from "axios";
@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TextShimmer } from "@/components/ui/text-shimmer";
-import { RotatingText } from "@/components/ui/rotatingText";
 
 const IBM = IBM_Plex_Mono({
   subsets: ["latin"],
@@ -23,9 +22,7 @@ const Chat = ({ uploadedFile, onStartOver }) => {
     {
       id: 1,
       type: "bot",
-      content: `Hi!\n\n I've analyzed your ${
-        uploadedFile?.name?.includes("YouTube") ? "YouTube video" : "document"
-      } "${uploadedFile?.name}". What would you like to know about it?`,
+      content: `Helow!\n\n Got your document. What would you like to know about it?`,
       timestamp: new Date(),
     },
   ]);
@@ -98,38 +95,37 @@ const Chat = ({ uploadedFile, onStartOver }) => {
 
   return (
     <div className={`flex h-screen w-full bg-background ${IBM.className}`}>
-      <div className="flex flex-col h-full w-full">
-        {/* Header with file info */}
-        <div className="flex items-center justify-end p-4 bg-background">
-          <div className="flex items-center space-x-2">
+      <div className="flex flex-col h-full w-full overflow-hidden">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-50 p-4 backdrop-blur-xl bg-background">
+          <div className="flex items-center gap-2 justify-end text-sm">
+            {`Press this cross to close this interface `}
+            <MoveRight size={16} />
             <Button
               variant="ghost"
               size="sm"
               onClick={onStartOver}
-              className="gap-1 text-foreground hover:bg-transparent hover:text-foreground hover:underline"
+              className="text-foreground hover:bg-transparent hover:text-foreground"
             >
-              Close <X size={16} />
+              <X size={16} />
             </Button>
           </div>
         </div>
 
         {/* Chat messages area */}
-        <ScrollArea
-          className="flex-1 overflow-y-auto flex flex-col px-4"
-          ref={scrollAreaRef}
-        >
+        <ScrollArea className="flex-1 overflow-y-auto flex flex-col px-4">
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${
+              className={`flex py-1 ${
                 message.type === "user" ? "justify-end" : "justify-start"
               }`}
             >
               <div
                 className={`max-w-[80%] rounded-lg px-4 py-2 ${
                   message.type === "user"
-                    ? "bg-primary text-primary-foreground ml-auto"
-                    : "bg-muted text-foreground"
+                    ? " text-primary ml-auto"
+                    : " text-foreground"
                 }`}
               >
                 <MarkdownTypewriter className="text-lg">
@@ -141,17 +137,19 @@ const Chat = ({ uploadedFile, onStartOver }) => {
               </div>
             </div>
           ))}
+
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-muted rounded-lg px-4 py-2">
+              <div className=" rounded-lg px-4 py-2">
                 <div className="flex items-center space-x-2">
-                  <TextShimmer className="font-mono text-sm" duration={1}>
+                  <TextShimmer className="font-mono text-base" duration={1}>
                     Thinking...
                   </TextShimmer>
                 </div>
               </div>
             </div>
           )}
+
           <div ref={messagesEndRef} />
         </ScrollArea>
 

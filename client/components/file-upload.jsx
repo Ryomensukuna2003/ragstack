@@ -1,33 +1,17 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useRef } from "react";
 import { Upload, FileText, X, CheckCircle, AlertCircle } from "lucide-react";
-import axios from "axios";
 import localFont from "next/font/local";
-import {  IBM_Plex_Mono } from "next/font/google";
-
-
-
 
 // Components
-import { toast } from "sonner";
 import { Input } from "./ui/input";
 import SleepingCat from "./ui/neko";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import RotatingText from "@/components/ui/rotatingText";
-
-const monoskaFont = localFont({
-  src: "../app/fonts/Monoska.ttf",
-});
-
-const IBM = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-IBM",
-});
-
+import { ProgressPopup } from "@/components/progress-popup";
 import {
   Dialog,
   DialogContent,
@@ -37,9 +21,30 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+// Functions
+import {
+  startEmbeddingYtVideo,
+  formatFileSize,
+  handleWebsiteLink,
+  handleFileUpload,
+} from "@/utils/fileUpload";
+import {
+  handleKeyPress,
+  handleDrag,
+  handleDrop,
+  createHandleFileSelection,
+  createHandleFileInput,
+  createRemoveFile,
+} from "@/utils/uiFunctions";
+
+const monoskaFont = localFont({
+  src: "../app/fonts/Monoska.ttf",
+});
+
 export default function FileUpload({
   onFileUpload,
   onYtVideoEmbedded,
+  setCurrentStep,
   apiEndpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/api/upload`,
 }) {
   const [dragActive, setDragActive] = useState(false);
@@ -47,241 +52,52 @@ export default function FileUpload({
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState(null); // 'success', 'error', null
+  // Progress popup state
+  const [showProgressPopup, setShowProgressPopup] = useState(false);
+  const [websiteProgress, setWebsiteProgress] = useState(0);
+
   const fileInputRef = useRef(null);
+
   const [YtLink, setYtLink] = useState("");
   const [ytVideoDetails, setYtVideoDetails] = useState(null);
   const [showYtPreview, setShowYtPreview] = useState(false);
 
-  const handleKeyPress = (e) => {
+  const [websiteLink, setWebsiteLink] = useState("");
+  const handleEnterKey = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleYtLink();
+      if (websiteLink.trim()) {
+        setWebsiteProgress(0); // Reset progress
+        setShowProgressPopup(true);
+        handleWebsiteLink(websiteLink, setCurrentStep, setWebsiteProgress);
+      }
     }
   };
 
-  const getYouTubeVideoDetails = async (videoId) => {
-    const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
-
-    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoId}&key=${apiKey}`;
-    const res = await axios.get(url);
-    const video = res.data.items[0];
-
-    if (!video) throw new Error("Video not found");
-    return {
-      title: video.snippet.title,
-      description: video.snippet.description,
-      channelTitle: video.snippet.channelTitle,
-      publishDate: video.snippet.publishedAt,
-      views: video.statistics.viewCount,
-      duration: video.contentDetails.duration,
-      thumbnail: video.snippet.thumbnails.high.url,
-    };
-  };
-
-  const handleYtLink = async () => {
-    console.log("Link is - " + YtLink);
-    // extract video ID from YouTube link
-    const videoId = YtLink.match(
-      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  // Create handler functions
+  const handleFileSelection = createHandleFileSelection(
+    setSelectedFile,
+    setUploadStatus,
+    setUploadProgress
+  );
+  const handleFileInput = createHandleFileInput(handleFileSelection);
+  const removeFile = createRemoveFile(
+    setSelectedFile,
+    setUploadStatus,
+    setUploadProgress,
+    fileInputRef
+  );
+  const handleDragEvents = handleDrag(setDragActive);
+  const handleDropEvents = handleDrop(setDragActive, handleFileSelection);
+  const handleFileUploadEvent = () =>
+    handleFileUpload(
+      selectedFile,
+      setUploading,
+      setUploadProgress,
+      setUploadStatus,
+      apiEndpoint,
+      onFileUpload
     );
-    try {
-      if (!videoId) {
-        toast.error("Invalid YouTube link. Please provide a valid link.");
-        return;
-      }
-
-      const videoDetails = await getYouTubeVideoDetails(videoId);
-      // console.log("Video Details:", videoDetails);
-      setYtVideoDetails(videoDetails);
-      setShowYtPreview(true);
-      toast.success(`Fetched details for: ${videoDetails.title}`);
-    } catch (error) {
-      toast.error(
-        error.message ||
-          "Failed to fetch YouTube video details. Please try again."
-      );
-      console.error("Error fetching YouTube video details:", error);
-    }
-  };
-
-  const startEmbeddingYtVideo = async () => {
-    try {
-      setUploading(true);
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/yt-transcript`,
-        {
-          URL: YtLink,
-        }
-      );
-      localStorage.setItem(
-        "collectionName",
-        response.data.embeddingName || "default_collection"
-      );
-      // console.log("Response of yt video:", response.data);
-      // Close the preview dialog
-      setShowYtPreview(false);
-      toast.success("YouTube video embedded successfully!");
-
-      // Call the callback to switch to chat interface
-      if (onYtVideoEmbedded) {
-        onYtVideoEmbedded(ytVideoDetails);
-      }
-    } catch (error) {
-      console.error("Error embedding YouTube video:", error);
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Failed to embed YouTube video"
-      );
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleDrag = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  }, []);
-
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileSelection(e.dataTransfer.files[0]);
-    }
-  }, []);
-
-  const validateFile = (file) => {
-    const allowedTypes = [
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/msword",
-      "text/plain",
-    ];
-
-    const allowedExtensions = [".pdf", ".docx", ".doc", ".txt"];
-    const fileExtension = file.name
-      .toLowerCase()
-      .substring(file.name.lastIndexOf("."));
-
-    if (
-      !allowedTypes.includes(file.type) &&
-      !allowedExtensions.includes(fileExtension)
-    ) {
-      return {
-        valid: false,
-        error: "Please upload a PDF, DOCX, DOC, or TXT file only.",
-      };
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      return { valid: false, error: "File size must be less than 10MB." };
-    }
-
-    if (file.size === 0) {
-      return { valid: false, error: "File appears to be empty." };
-    }
-
-    return { valid: true };
-  };
-
-  const handleFileSelection = (file) => {
-    const validation = validateFile(file);
-
-    if (!validation.valid) {
-      toast.error(validation.error);
-      return;
-    }
-
-    setSelectedFile(file);
-    setUploadStatus(null);
-    setUploadProgress(0);
-  };
-
-  const handleFileInput = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFileSelection(e.target.files[0]);
-    }
-  };
-
-  const removeFile = () => {
-    setSelectedFile(null);
-    setUploadStatus(null);
-    setUploadProgress(0);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
-
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-
-    setUploading(true);
-    setUploadProgress(0);
-    setUploadStatus(null);
-
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-
-    try {
-      const response = await axios.post(apiEndpoint, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          setUploadProgress(percentCompleted);
-        },
-        timeout: 30000, // 30 second timeout
-      });
-      console.log("response of upload --> ", response);
-      if (response.status === 200) {
-        console.log("collectionName --> " + response.data.embeddingName);
-        localStorage.setItem(
-          "collectionName",
-          response.data.embeddingName || "default_collection"
-        );
-      }
-      toast.success("File uploaded successfully!");
-      setUploadStatus("success");
-      onFileUpload?.(selectedFile, response.data);
-    } catch (error) {
-      console.error("File upload failed:", error);
-      setUploadStatus("error");
-
-      if (error.code === "ECONNABORTED") {
-        toast.error("Upload timeout. Please try again with a smaller file.");
-      } else if (error.response?.status === 413) {
-        toast.error("File too large. Please choose a smaller file.");
-      } else if (error.response?.status === 415) {
-        toast.error("Unsupported file type.");
-      } else {
-        toast.error(
-          error.response?.data?.message ||
-            "Failed to upload file. Please try again."
-        );
-      }
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const getUploadStatusIcon = () => {
     if (uploadStatus === "success") {
@@ -357,10 +173,10 @@ export default function FileUpload({
                   ? "border-primary/50 bg-primary/5"
                   : "border-border/60 hover:border-border"
               }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
+              onDragEnter={handleDragEvents}
+              onDragLeave={handleDragEvents}
+              onDragOver={handleDragEvents}
+              onDrop={handleDropEvents}
             >
               {!selectedFile ? (
                 <div className="text-center space-y-4 ">
@@ -446,7 +262,7 @@ export default function FileUpload({
                       </Button>
                     ) : (
                       <Button
-                        onClick={handleUpload}
+                        onClick={handleFileUploadEvent}
                         className="w-full"
                         size="lg"
                       >
@@ -476,7 +292,9 @@ export default function FileUpload({
                 placeholder="Enter YT link here"
                 value={YtLink}
                 onChange={(e) => setYtLink(e.target.value)}
-                onKeyDown={handleKeyPress}
+                onKeyDown={(e) =>
+                  handleKeyPress(e, YtLink, setYtVideoDetails, setShowYtPreview)
+                }
               />
               <p className="text-xs flex w-full justify-end text-muted-foreground">
                 Press enter to fetch
@@ -489,7 +307,9 @@ export default function FileUpload({
                 >
                   <DialogContent className={`sm:max-w-md`}>
                     <DialogHeader className="text-center">
-                      <DialogTitle className={`flex items-center justify-center`}>
+                      <DialogTitle
+                        className={`flex items-center justify-center`}
+                      >
                         Is this the Video?
                       </DialogTitle>
                       <img
@@ -525,7 +345,15 @@ export default function FileUpload({
                         Enter diffrent Link
                       </Button>
                       <Button
-                        onClick={startEmbeddingYtVideo}
+                        onClick={() =>
+                          startEmbeddingYtVideo(
+                            YtLink,
+                            setUploading,
+                            setShowYtPreview,
+                            onYtVideoEmbedded,
+                            ytVideoDetails
+                          )
+                        }
                         disabled={uploading}
                         className="w-full sm:w-auto"
                       >
@@ -536,9 +364,30 @@ export default function FileUpload({
                 </Dialog>
               )}
             </div>
+
+            <div className="flex justify-center align-middle text-foreground">
+              OR
+            </div>
+            <div>
+              <Input
+                placeholder="Enter Website link here"
+                value={websiteLink}
+                onChange={(e) => setWebsiteLink(e.target.value)}
+                onKeyDown={(e) => handleEnterKey(e, websiteLink)}
+              />
+              <p className="text-xs flex w-full justify-end text-muted-foreground">
+                Press enter to fetch
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
+      <ProgressPopup
+        isOpen={showProgressPopup}
+        onOpenChange={setShowProgressPopup}
+        websiteUrl={websiteLink}
+        progress={websiteProgress}
+      />
     </div>
   );
 }

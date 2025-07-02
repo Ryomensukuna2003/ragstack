@@ -32,16 +32,16 @@ export default function HomePage() {
   };
 
   const handleStartOver = async () => {
+    setCurrentStep("upload");
+    setUploadedFile(null);
+    setYtVideoDetails(null);
+    setShowConfirmDialog(false);
     await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}/api/reset`, {
       data: {
         collectionName:
           localStorage.getItem("collectionName") || "default_collection",
       },
     });
-    setCurrentStep("upload");
-    setUploadedFile(null);
-    setYtVideoDetails(null);
-    setShowConfirmDialog(false);
   };
 
   return (
@@ -50,13 +50,14 @@ export default function HomePage() {
         <FileUpload
           onFileUpload={handleFileUpload}
           onYtVideoEmbedded={handleYtVideoEmbedded}
+          setCurrentStep={setCurrentStep}
         />
       )}
 
       {currentStep === "chat" && (
         <Chat
           uploadedFile={
-            uploadedFile || { name: ytVideoDetails?.title || "YouTube Video" }
+            uploadedFile || { name: ytVideoDetails?.title || "document" }
           }
           onStartOver={handleStartOver}
         />

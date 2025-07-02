@@ -1,22 +1,24 @@
-import { readFileSync } from 'fs';
-
-import pdf from 'pdf-parse';
-import { extractRawText } from 'mammoth';
+import { TextLoader } from "langchain/document_loaders/fs/text";
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 
 export async function parseDoc(file) {
-  const buffer = readFileSync(file.path);
-  const ext = file.originalname.split('.').pop();
-
-  if (ext === 'pdf') {
-    // Use 'pdf' instead of 'pdfParse'
-    const data = await pdf(buffer);
-    return data.text;
-  } else if (ext === 'docx') {
-    const data = await extractRawText({ buffer });
-    return data.value;
-  } else if (ext === 'txt') {
-    return readFileSync(file.path, 'utf8');
+  const ext = file.originalname.split('.').pop().toLowerCase();
+  let loader;
+  switch (ext) {
+    case 'pdf':
+      loader = new PDFLoader(file.path);
+      break;
+    case 'docx':
+      loader = new DocxLoader(file.path);
+      break;
+    case 'txt':
+      loader = new TextLoader(file.path);
+      break;
+    default:
+      throw new Error(`Unsupported file type: ${ext}`);
   }
 
-  return '';
+  const docs = await loader.load();
+  return docs.map(doc => doc.pageContent).join('\n');
 }

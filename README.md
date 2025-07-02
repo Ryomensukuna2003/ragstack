@@ -161,3 +161,5 @@ The application is currently deployed with:
 ## Todo
 - [ ] Add seperate vector name for embeddings. it is messing with current answers.
 - [ ] Add FireCrawlLoader to load data from websites.
+- [ ] Add preview for websites and loading state
+- [ ] Add code highlighting for code files

@@ -1,7 +1,6 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
 import "dotenv/config";
 
-// const qdrant = new QdrantClient({ url: 'http://localhost:6333' });
 const qdrant = new QdrantClient({
   url: process.env.QDRANT_URL || "http://localhost:6333",
   apiKey: process.env.QDRANT_API_KEY || undefined,
@@ -14,8 +13,6 @@ const qdrant = new QdrantClient({
 export const resetVectorStore = async (collectionName) => {
   try {
     console.log("Testing Qdrant connection...");
-    console.log(process.env.QDRANT_URL);
-    console.log(process.env.QDRANT_API_KEY);
     const exists = await qdrant.getCollections();
     const names = exists.collections.map((c) => c.name);
     if (names.includes(collectionName)) {
