@@ -196,5 +196,3 @@ const Chat = ({ uploadedFile, onStartOver }) => {
     </div>
   );
 };
-
-export default Chat;
