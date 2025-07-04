@@ -10,17 +10,19 @@ Remember finding the closest point in the Gorakhpur? This is what RAG does. It r
 
 # Vector Docs
 
-Smart Document Search & Q&A is a full-stack web application that enables users to upload documents (PDF, DOCX, TXT), ask natural language questions about their content, and receive context-aware answers powered by Google's Gemini 2.5 Flash AI model. The application features cloud deployment for scalability and performance.
-1. **Upload:** User uploads documents through the Next.js frontend. Azure-hosted backend extracts and chunks text for semantic search
+Smart Document Search & Q&A is a full-stack web application that enables users to upload documents (PDF, DOCX, TXT), process YouTube videos, crawl websites, and ask natural language questions about their content. Users receive context-aware answers powered by Google's Gemini 2.5 Flash AI model. The application features cloud deployment for scalability and performance.
+
+1. **Upload:** Users can upload documents through the Next.js frontend, enter YouTube video URLs, or provide website links. Azure-hosted backend extracts and chunks text for semantic search
 2. **Indexing:** Each chunk is embedded and stored in Qdrant Cloud with metadata for fast retrieval
-3. **Question Answering:** User asks a question. The system retrieves the most relevant document chunks from Qdrant and feeds them to Google Gemini 2.5 Flash using LangChain's RAG pipeline
-4. **Results:** Gemini generates a precise, context-aware answer and the UI highlights the original document locations web application that enables users to upload documents (PDF, DOCX, TXT), ask natural language questions about their content, and receive context-aware answers powered by Google's Gemini 2.5 Flash AI model. The application features cloud deployment for scalability and performance.
+3. **Question Answering:** User asks a question. The system retrieves the most relevant content chunks from Qdrant and feeds them to Google Gemini 2.5 Flash using LangChain's RAG pipeline
+4. **Results:** Gemini generates a precise, context-aware answer with an intuitive chat interface
 
 This project blends modern full-stack web development with cutting-edge GenAI workflows:
-- **Frontend:** Next.js with React and Tailwind CSS for a clean and intuitive user interface
-- **Backend:** Node.js & Express deployed on Microsoft Azure for robust file handling and orchestration
+- **Frontend:** Next.js with React and Tailwind CSS for a clean and intuitive user interface with real-time chat functionality
+- **Backend:** Node.js & Express deployed on Microsoft Azure for robust file handling, YouTube transcript processing, and web crawling
 - **AI Layer:** Google Gemini 2.5 Flash for powerful language understanding, Qdrant Cloud for high-speed vector search, and LangChain.js to orchestrate retrieval-augmented generation (RAG)
 - **Infrastructure:** Azure deployment with ngrok for secure HTTPS connectivity
+- **Content Sources:** Support for documents (PDF, DOCX, TXT), YouTube videos via transcript extraction, and website content crawling
 
 ---
 
@@ -28,14 +30,14 @@ This project blends modern full-stack web development with cutting-edge GenAI wo
 
 <img src="https://skillicons.dev/icons?i=nextjs,react,nodejs,tailwind,docker,express&theme=dark" alt="Tech Stack" />
 
-- **Frontend:** Next.js, React, Tailwind CSS
+- **Frontend:** Next.js, React, Tailwind CSS, Framer Motion (animations)
 - **Backend:** Node.js, Express (deployed on Azure)
 - **Document Parsing:** pdf-parse, mammoth
+- **Media Processing:** YouTube transcript extraction, playwright
 - **Vector DB:** Qdrant Cloud
 - **AI Model:** Google Gemini 2.5 Flash
 - **Orchestration:** LangChain.js
 - **Infrastructure:** Microsoft Azure, ngrok
-- **Highlighting:** mark.js
 
 
 ## Architecture
@@ -45,14 +47,17 @@ This project blends modern full-stack web development with cutting-edge GenAI wo
    │
    ▼
 [Next.js Frontend] ⇄ [Azure-hosted API] ⇄ [Qdrant Cloud] ⇄ [Google Gemini 2.5 Flash]
-                            │
-                            ▼
-                      [ngrok HTTPS Tunnel]
+   │                        │
+   │                        ▼
+[Chat Interface]      [YouTube API / Web Crawler]
+   │                        │
+   ▼                        ▼
+[Progress Indicators]  [ngrok HTTPS Tunnel]
 ```
 
-- **Frontend:** Handles document upload, querying, answer display, and highlighting
-- **Backend:** Azure-deployed Node.js API that manages uploads, parses documents, generates embeddings, and orchestrates the AI pipeline
-- **Vector Database:** Qdrant Cloud for scalable vector storage and similarity search
+- **Frontend:** Handles document upload, YouTube video processing, website crawling, real-time chat interface with progress tracking
+- **Backend:** Azure-deployed Node.js API that manages uploads, parses documents, extracts YouTube transcripts, crawls websites, generates embeddings, and orchestrates the AI pipeline
+- **Vector Database:** Qdrant Cloud for scalable vector storage and similarity search across all content types
 - **AI Layer:** Google Gemini 2.5 Flash for advanced language understanding and generation
 - **Connectivity:** ngrok provides secure HTTPS tunneling for seamless API communication
 
@@ -65,13 +70,25 @@ This project blends modern full-stack web development with cutting-edge GenAI wo
 - **POST** `/api/upload`
   - Upload and process documents
   - Accepts: PDF, DOCX, TXT files
-  - Returns: Processing status and document ID
+  - Returns: Processing status and embedding collection name
+
+### YouTube Video Processing
+- **POST** `/api/yt-transcript`
+  - Process YouTube videos and extract transcripts
+  - Body: `{ URL: string }`
+  - Returns: Embedding collection name and processing status
+
+### Website Crawling
+- **POST** `/api/web-crawler`
+  - Crawl and process website content
+  - Body: `{ URL: string }`
+  - Returns: Embedding collection name and processing status
 
 ### Question Answering
 - **POST** `/api/ask`
-  - Ask questions about uploaded documents
-  - Body: `{ question: string, docId: string }`
-  - Returns: AI-generated answer
+  - Ask questions about uploaded content
+  - Body: `{ question: string }`
+  - Returns: AI-generated answer based on stored embeddings
 
 
 ## Project Structure
@@ -79,31 +96,44 @@ This project blends modern full-stack web development with cutting-edge GenAI wo
 ```
 RAG/
 ├── client/                 # Next.js frontend application
-│   ├── app/               # App router pages and layouts
-│   ├── components/        # Reusable UI components
-│   └── package.json       # Frontend dependencies
-├── server/                # Express.js backend application
-│   ├── controllers/       # Request handlers
-│   ├── routes/           # API route definitions
-│   ├── services/         # Business logic and utilities
-│   ├── uploads/          # File upload directory
-│   └── package.json      # Backend dependencies
-└── README.md             # Project documentation
+│   ├── app/                  # App router pages and layouts
+│   ├── components/           # Reusable UI components
+│   │   ├── ui/                  # Base UI components (buttons, inputs, etc.)
+│   │   ├── chat-interface.jsx    # Real-time chat component
+│   │   ├── file-upload.jsx       # Multi-source upload interface
+│   │   ├── progress-popup.tsx    # Progress tracking component
+│   │   └── ytPreview.jsx         # YouTube video preview
+│   ├── utils/                # Utility functions and helpers
+│   └── package.json          # Frontend dependencies
+│
+├── server/                 # Express.js backend application
+│   ├── controllers/          # Request handlers
+│   ├── routes/               # API route definitions
+│   ├── services/             # Business logic and utilities
+│   │   ├── parseService.js      # Document parsing
+│   │   ├── ragService.js        # RAG pipeline orchestration
+│   │   └── resetService.js      # Database reset utilities
+│   ├── uploads/              # File upload directory
+│   └── package.json          # Backend dependencies
+└── README.md                 # Project documentation
 ```
 
 
 ## Suggested Use Cases
 
-- Enterprise knowledge base with cloud scalability and AI-powered search
-- Research assistant for academics, lawyers, or analysts with advanced language understanding
-- Document analysis platform with professional-grade AI capabilities
+- Enterprise knowledge base with cloud scalability and AI-powered search across documents, videos, and websites
+- Research assistant for academics, lawyers, or analysts with advanced language understanding and multi-source content processing
+- Document analysis platform with professional-grade AI capabilities and real-time chat interface
 - Learning platform for exploring modern GenAI and cloud deployment architectures
+- Content aggregation tool for processing information from various sources (documents, YouTube videos, websites)
+- Educational resource for understanding RAG pipelines, vector databases, and AI-powered search
 
 ## Installation & Setup
 
 ### Prerequisites
 - Node.js (v18+)
 - Google Gemini API key
+- YouTube Data API key (for video processing)
 - Qdrant Cloud account
 - Azure account (for backend deployment)
 - ngrok account (for HTTPS tunneling)
@@ -138,6 +168,8 @@ RAG/
    
    # client/.env.local
    NEXT_PUBLIC_API_URL=your_ngrok_or_azure_backend_url
+   NEXT_PUBLIC_YOUTUBE_API_KEY=your_youtube_data_api_key
+   NEXT_PUBLIC_BASE_URL=your_backend_base_url
    ```
 
 4. **Start the development servers:**
@@ -156,10 +188,3 @@ The application is currently deployed with:
 - **Frontend:** Vercel
 - **Database:** Qdrant Cloud for vector storage
 - **HTTPS:** ngrok tunnel for secure API communication
-
-
-## Todo
-- [ ] Add seperate vector name for embeddings. it is messing with current answers.
-- [ ] Add FireCrawlLoader to load data from websites.
-- [ ] Add preview for websites and loading state
-- [ ] Add code highlighting for code files
