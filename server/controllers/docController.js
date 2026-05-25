@@ -1,3 +1,4 @@
+import { unlink } from "node:fs/promises";
 import { parseDoc } from "../services/parseService.js";
 import { resetVectorStore } from "../services/resetService.js";
 import { embedAndStoreChunks, getAnswerFromChunks } from "../services/ragService.js";
@@ -7,11 +8,17 @@ import "dotenv/config";
 
 // Controller to handle document upload and processing
 export const uploadAndProcessDoc = async (req, res) => {
-  const text = await parseDoc(req.file);
-  let collectionName = req.file.originalname.replace(/\.[^/.]+$/, "") + Date.now();
-  console.log("collectionName --> " + collectionName);
-  await embedAndStoreChunks(text, req.file.originalname, collectionName);
-  res.status(200).json({ status: "uploaded and embedded", embeddingName: collectionName });
+  try {
+    const text = await parseDoc(req.file);
+    const collectionName = req.file.originalname.replace(/\.[^/.]+$/, "") + Date.now();
+    console.log("collectionName --> " + collectionName);
+    await embedAndStoreChunks(text, req.file.originalname, collectionName);
+    res.status(200).json({ status: "uploaded and embedded", embeddingName: collectionName });
+  } finally {
+    if (req.file?.path) {
+      unlink(req.file.path).catch(() => {});
+    }
+  }
 };
 
 // Ask a question based on the uploaded document

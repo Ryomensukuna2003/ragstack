@@ -6,7 +6,7 @@ import { webCrawler } from '../controllers/webCrawler.js';
 import { extractTranscript } from '../controllers/yt_Transcript.js';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: '/tmp/uploads/' });
 
 router.post('/upload', upload.single('file'), uploadAndProcessDoc); // Upload Endpoint
 router.post('/ask', askQuestion);                                   // Ask Question Endpoint

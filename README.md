@@ -12,16 +12,16 @@ Remember finding the closest point in the Gorakhpur? This is what RAG does. It r
 
 Smart Document Search & Q&A is a full-stack web application that enables users to upload documents (PDF, DOCX, TXT), process YouTube videos, crawl websites, and ask natural language questions about their content. Users receive context-aware answers powered by Google's Gemini 2.5 Flash AI model. The application features cloud deployment for scalability and performance.
 
-1. **Upload:** Users can upload documents through the Next.js frontend, enter YouTube video URLs, or provide website links. Azure-hosted backend extracts and chunks text for semantic search
+1. **Upload:** Users can upload documents through the Next.js frontend, enter YouTube video URLs, or provide website links. Render-hosted backend extracts and chunks text for semantic search
 2. **Indexing:** Each chunk is embedded and stored in Qdrant Cloud with metadata for fast retrieval
 3. **Question Answering:** User asks a question. The system retrieves the most relevant content chunks from Qdrant and feeds them to Google Gemini 2.5 Flash using LangChain's RAG pipeline
 4. **Results:** Gemini generates a precise, context-aware answer with an intuitive chat interface
 
 This project blends modern full-stack web development with cutting-edge GenAI workflows:
 - **Frontend:** Next.js with React and Tailwind CSS for a clean and intuitive user interface with real-time chat functionality
-- **Backend:** Node.js & Express deployed on Microsoft Azure for robust file handling, YouTube transcript processing, and web crawling
+- **Backend:** Node.js & Express deployed on Render (Docker) for robust file handling, YouTube transcript processing, and web crawling
 - **AI Layer:** Google Gemini 2.5 Flash for powerful language understanding, Qdrant Cloud for high-speed vector search, and LangChain.js to orchestrate retrieval-augmented generation (RAG)
-- **Infrastructure:** Azure deployment with ngrok for secure HTTPS connectivity
+- **Infrastructure:** Render free tier with native HTTPS
 - **Content Sources:** Support for documents (PDF, DOCX, TXT), YouTube videos via transcript extraction, and website content crawling
 
 ---
@@ -31,13 +31,13 @@ This project blends modern full-stack web development with cutting-edge GenAI wo
 <img src="https://skillicons.dev/icons?i=nextjs,react,nodejs,tailwind,docker,express&theme=dark" alt="Tech Stack" />
 
 - **Frontend:** Next.js, React, Tailwind CSS, Framer Motion (animations)
-- **Backend:** Node.js, Express (deployed on Azure)
+- **Backend:** Node.js, Express (deployed on Render via Docker)
 - **Document Parsing:** pdf-parse, mammoth
 - **Media Processing:** YouTube transcript extraction, playwright
 - **Vector DB:** Qdrant Cloud
 - **AI Model:** Google Gemini 2.5 Flash
 - **Orchestration:** LangChain.js
-- **Infrastructure:** Microsoft Azure, ngrok
+- **Infrastructure:** Render (free tier)
 
 
 ## Architecture
@@ -46,20 +46,20 @@ This project blends modern full-stack web development with cutting-edge GenAI wo
 [User]
    │
    ▼
-[Next.js Frontend] ⇄ [Azure-hosted API] ⇄ [Qdrant Cloud] ⇄ [Google Gemini 2.5 Flash]
-   │                        │
-   │                        ▼
-[Chat Interface]      [YouTube API / Web Crawler]
-   │                        │
-   ▼                        ▼
-[Progress Indicators]  [ngrok HTTPS Tunnel]
+[Next.js Frontend] ⇄ [Render-hosted API] ⇄ [Qdrant Cloud] ⇄ [Google Gemini 2.5 Flash]
+   │                         │
+   │                         ▼
+[Chat Interface]       [YouTube API / Web Crawler]
+   │
+   ▼
+[Progress Indicators]
 ```
 
 - **Frontend:** Handles document upload, YouTube video processing, website crawling, real-time chat interface with progress tracking
-- **Backend:** Azure-deployed Node.js API that manages uploads, parses documents, extracts YouTube transcripts, crawls websites, generates embeddings, and orchestrates the AI pipeline
+- **Backend:** Render-deployed Node.js API (Docker) that manages uploads, parses documents, extracts YouTube transcripts, crawls websites, generates embeddings, and orchestrates the AI pipeline
 - **Vector Database:** Qdrant Cloud for scalable vector storage and similarity search across all content types
 - **AI Layer:** Google Gemini 2.5 Flash for advanced language understanding and generation
-- **Connectivity:** ngrok provides secure HTTPS tunneling for seamless API communication
+- **Connectivity:** Render provides a native HTTPS endpoint, no tunneling required
 
 ---
 
@@ -135,8 +135,7 @@ RAG/
 - Google Gemini API key
 - YouTube Data API key (for video processing)
 - Qdrant Cloud account
-- Azure account (for backend deployment)
-- ngrok account (for HTTPS tunneling)
+- Render account (for backend deployment)
 
 ### Local Development Setup
 
@@ -167,9 +166,9 @@ RAG/
    PORT=3001
    
    # client/.env.local
-   NEXT_PUBLIC_API_URL=your_ngrok_or_azure_backend_url
+   NEXT_PUBLIC_API_URL=your_render_backend_url
    NEXT_PUBLIC_YOUTUBE_API_KEY=your_youtube_data_api_key
-   NEXT_PUBLIC_BASE_URL=your_backend_base_url
+   NEXT_PUBLIC_BASE_URL=your_render_backend_url
    ```
 
 4. **Start the development servers:**
@@ -184,7 +183,7 @@ RAG/
 ### Production Deployment
 
 The application is currently deployed with:
-- **Backend:** Microsoft Azure VM
+- **Backend:** Render (Docker, free tier)
 - **Frontend:** Vercel
 - **Database:** Qdrant Cloud for vector storage
-- **HTTPS:** ngrok tunnel for secure API communication
+- **HTTPS:** Provided natively by Render

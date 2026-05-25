@@ -9,7 +9,21 @@ import { createRetrievalChain } from "langchain/chains/retrieval";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import "dotenv/config";
 
-let vectorStore;
+const qdrantConfig = (collectionName) => ({
+  url: process.env.QDRANT_URL || "http://localhost:6333",
+  apiKey: process.env.QDRANT_API_KEY || undefined,
+  https: {
+    rejectUnauthorized: false,
+  },
+  checkCompatibility: false,
+  collectionName: collectionName || "default_collection",
+});
+
+const buildEmbeddings = () =>
+  new GoogleGenerativeAIEmbeddings({
+    model: "gemini-embedding-001",
+    apiKey: process.env.GEMINI_API_KEY,
+  });
 
 export const embedAndStoreChunks = async (rawText, docName, collName) => {
   const splitter = new RecursiveCharacterTextSplitter({
@@ -20,35 +34,27 @@ export const embedAndStoreChunks = async (rawText, docName, collName) => {
   const chunks = await splitter.splitText(rawText);
   const metadatas = chunks.map((_, i) => ({ doc: docName, index: i }));
 
-  const embeddings = new GoogleGenerativeAIEmbeddings({
-    model: "embedding-001",
-    apiKey: process.env.GOOGLE_API_KEY,
-  });
-
-  vectorStore = await QdrantVectorStore.fromTexts(
+  await QdrantVectorStore.fromTexts(
     chunks,
     metadatas,
-    embeddings,
-    {
-      url: process.env.QDRANT_URL || "http://localhost:6333",
-      apiKey: process.env.QDRANT_API_KEY || undefined,
-      https: {
-        rejectUnauthorized: false,
-      },
-      checkCompatibility: false,
-      collectionName: collName || "default_collection",
-    }
+    buildEmbeddings(),
+    qdrantConfig(collName)
   );
 };
 
-export const getAnswerFromChunks = async (question) => {
-  if (!vectorStore) {
-    throw new Error("Vector store not initialized. Upload a document first.");
+export const getAnswerFromChunks = async (question, collectionName) => {
+  if (!collectionName) {
+    throw new Error("collectionName (docId) is required.");
   }
+
+  const vectorStore = await QdrantVectorStore.fromExistingCollection(
+    buildEmbeddings(),
+    qdrantConfig(collectionName)
+  );
 
   const model = new ChatGoogleGenerativeAI({
     model: "gemini-2.5-flash",
-    apiKey: process.env.GOOGLE_API_KEY,
+    apiKey: process.env.GEMINI_API_KEY,
   });
 
   const prompt = ChatPromptTemplate.fromTemplate(

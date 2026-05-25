@@ -12,7 +12,16 @@ export const webCrawler = async (req, res) => {
         const websiteName = URL.replace(/https?:\/\//, "").split("/")[0];
         
         const loader = new PlaywrightWebBaseLoader(URL, {
-            launchOptions: { headless: true },
+            launchOptions: {
+                headless: true,
+                args: [
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-gpu",
+                    "--single-process",
+                ],
+            },
             gotoOptions: { waitUntil: "networkidle" },
             evaluate: async (page) => {
                 // This function runs in the browser context
